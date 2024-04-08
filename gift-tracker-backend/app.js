@@ -7,6 +7,9 @@ app.get('/', (req, res) => {
     res.send('testing');
 })
 
+// profile information storage
+// - let the user replace their photo
+
 app.get('/birthday/:id', (req, res) => {
     const { id } = req.params;
     knex('birthday')
