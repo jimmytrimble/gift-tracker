@@ -7,6 +7,8 @@ function App() {
       <h1>PROJECT 3 TEST </h1>
       {/* {Nav_Menu}
       {Homepage} */}
+
+      {/* THIS IS A TEST OF GIT PULL */}
     </div>
   );
 }
