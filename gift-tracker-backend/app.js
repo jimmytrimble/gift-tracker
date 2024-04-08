@@ -10,6 +10,9 @@ app.get('/', (req, res) => {
 // profile information storage
 // - let the user replace their photo
 
+// join example
+//SELECT b.name, b.birthdate, w.gifts  FROM birthday b JOIN wishlist w ON b.wishlist_id = w.id;
+
 app.get('/birthday/:id', (req, res) => {
     const { id } = req.params;
     knex('birthday')
