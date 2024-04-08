@@ -32,9 +32,15 @@ useEffect = async () => {
   const filterInterests = (event) => {
     const clickedInterest = event.target.value;
 
-
-
-
+    if(meatFilter.includes(event.target.value)) {
+      if(meatFilter.length === 1) {
+        setMeatFilter([])
+      }
+      setMeatFilter(meatFilter.filter(meals => meals !== event.target.value))
+    } else{
+      setMeatFilter([...meatFilter, event.target.value])
+    }
+    const checkArr = interests.map()
   }
 
 
