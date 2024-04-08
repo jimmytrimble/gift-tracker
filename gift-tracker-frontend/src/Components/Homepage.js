@@ -8,7 +8,7 @@ let userLogin = [
     {userName: 'Noel', password: Working1},
     {userName: 'Nikki', password: Working2},
     {userName: 'Will', password: Working3}
-]
+];
 
 export default function login(){
 

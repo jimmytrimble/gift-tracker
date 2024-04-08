@@ -5,6 +5,8 @@ import { Routes, Route } from 'react-router-dom';
 // import Homepage from './Components/Homepage';
 import LoginButton from "./LoginComponents/LoginButton"
 import LogoutButton from "./LoginComponents/LogoutButton"
+import Profile from "./Components/Profile"
+import GiftFinder from './Gift_Finder';
 
 
 function App() {
@@ -15,7 +17,8 @@ function App() {
       <LogoutButton />
       <Routes>
         {/* <Route path='/' element={<Homepage />} /> */}
-        {/* <Route path='/profile' element={<Profile />} /> */}
+        <Route path='/profile' element={<Profile />}></Route>
+        <Route path='/giftfinder' element={<GiftFinder />}></Route>
       </Routes>
 
       {/* {Nav_Menu}
