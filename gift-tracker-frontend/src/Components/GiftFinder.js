@@ -3,23 +3,23 @@ import {useEffect, useState} from 'react';
 
 // API is built on PORT 8081
 
-
 const GiftFinder = () => {
 
-  const [price, setPrice] = useState(0);
-  const [interests, setInterests] = useState(['']);
+  const [interests, setInterests] = useState([]);
   const [allGifts, setAllGifts] = useState([]);
   const [suggestions, setSuggestions] = useState ([]);
 
 
-useEffect = async () => {
-  fetch('http://localhost:8081/gifts')
+useEffect (() => {
+  fetch('http://localhost:8081/admin/gifts')
   .then( response => response.json())
-  .then( data => setAllGifts(data) )
-  }
+  .then(data => {
+    console.log("all Gifts", data)
+    setAllGifts(data)})
+  }, [])
 
   const filterPrice = () => {
-    const priceRange = parseInt(document.getELementById("price-range").value);
+    const priceRange = parseInt(document.getElementById("price-range").value);
 
     setSuggestions(allGifts.filter(item => item.price === priceRange))
 
@@ -27,9 +27,7 @@ useEffect = async () => {
 
   const interestChangeHandler = (event) => {
     if(interests.includes(event.target.value)) {
-      if(interests.length === 1) {
-        setInterests([])
-      }
+
       setInterests(interests.filter(item => item !== event.target.value))
     } else{
       setInterests([...interests, event.target.value])
@@ -37,10 +35,9 @@ useEffect = async () => {
 
 
   }
-
-
-  const filterInterests = () => {
-    setSuggestions(allGifts.filter( item => interests.includes(item.interest)))
+  const filterInterests = async() => {
+    const newItems = allGifts.filter( item => interests.includes(item.interests));
+    await setSuggestions(newItems)
   }
 
   return(
@@ -57,30 +54,36 @@ useEffect = async () => {
 
    <div className="interests">
     <h2>What interests does this person have?</h2>
-    <select id="interests">
-        <checkbox value="sports" onChange={interestChangeHandler}>Sports</checkbox>
-        <checkbox value="jewelry" onChange={interestChangeHandler}>Jewelry</checkbox>
-        <checkbox value="cooking" onChange={interestChangeHandler}>Cooking</checkbox>
-    </select>
+      <div>
+        <input type="checkbox" id="sports" value="Sports" onChange={interestChangeHandler}/>
+        <span>Sports</span>
+      </div>
+      <div>
+        <input type="checkbox" id="jewelry" value="Jewelry" onChange={interestChangeHandler}/>
+         <span>Jewelry</span>
+      </div>
+        <div>
+          <input type="checkbox" id="cooking" value="Cooking" onChange={interestChangeHandler}/>
+          <span>Cooking</span>
+        </div>
     <button type="submit" onClick={filterInterests}>Submit</button>
    </div>
 
    <div className = 'gift results'>
     {suggestions.map(item => {
+      return(
       <>
+        <h2> Here are your gift suggestions! </h2>
         <div className='giftItem' >
           <h2>{item.title}</h2>
           <img id='gift-pic' src={item.image} alt='gift' />
           <a href={item.link}>Buy Here</a>
         </div>
       </>
+      )
     })}
-
    </div>
     </>
   )
-
-
-
 }
-export default  GiftFinder;
+export default GiftFinder;
