@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const port = 8081;
 const knex = require("knex")(require("./knexfile.js")["development"]);
 
-app.use(express.json());
+app.use(cors(), express.json());
 
 // --- GET ---
 
@@ -21,9 +22,16 @@ app.get('/birthday/:id', (req, res) => {
       .catch(err => res.status(404).send(err))
 })
 
-app.get('/birthday', (req, res) => {
+app.get('/admin/event', (req, res) => {
+  knex('birthday')
+      .select('*')
+      .then(data => res.status(200).json(data))
+      .catch(err => res.status(404).send(err))
+})
+
+app.get('/users/event', (req, res) => {
     knex('birthday')
-        .select('*')
+        .select('name', 'birthdate', 'relationship', 'priority')
         .then(data => res.status(200).json(data))
         .catch(err => res.status(404).send(err))
 })
@@ -31,7 +39,6 @@ app.get('/birthday', (req, res) => {
 app.get('/admin/gifts', (req, res) => {
   knex('gift')
     .select('*')
-    // .where('birthday_id', id)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(404).send(err))
 
@@ -107,11 +114,11 @@ app.patch('/users/update/:id', (req, res) => {
 app.delete('/users/remove/:id', (req, res) => {
   const { id } = req.params;
   knex('users')
-    .where('id', req.params.id)
+    .where('id', id)
     .del()
     .then(deleted => {
-      if (deleted) res.status(202).json(`User ${id} deleted.`)
-      else res.status(404).json(`User ${id} not found.`)
+      if (deleted) res.status(202).send(`User ${id} deleted.`)
+      else res.status(404).send(`User ${id} not found.`)
     })
 })
 
