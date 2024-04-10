@@ -4,9 +4,9 @@
  */
 exports.seed = async function(knex) {
   // Deletes ALL existing entries
-  await knex('wishlist').del()
+  await knex.schema.raw('TRUNCATE TABLE wishlist RESTART IDENTITY CASCADE')
   await knex('wishlist').insert([
-    {id: 1, gifts: 'Basketball', bought: 'false', image: 'https://tinyurl.com/3j8ejpte'},
+    {gifts: 'Basketball', bought: 'false', image: 'https://snipboard.io/gZ2qHr.jpg', user_id: 1},
     // {id: 1, gifts: 'Basketball', bought: 'false'},
     // {id: 1, gifts: 'Basketball', bought: 'false'},
     // {id: 1, gifts: 'Basketball', bought: 'false'}
