@@ -1,9 +1,10 @@
 // Inital login page
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { css, styled } from 'styled-components';
 import LoginForm from './LoginForm';
 import { useAuth0 } from '@auth0/auth0-react';
 import Calendar from "./Calendar";
+//import UserLog from '../UserLog';
 
 const StyledDiv = styled.div`
     display: flex;
@@ -42,7 +43,8 @@ const StyledHeader = styled.h2`
 `
 
 function Homepage() {
-    const { isAuthenticated } = useAuth0();
+    const { user, isAuthenticated } = useAuth0();
+   // const { text, setText } = useContext(UserLog);
     const [addPressed, setAddPressed] = useState(0);
 
 
@@ -65,6 +67,10 @@ function Homepage() {
     //     }
     // }
 
+    const checkUserData = () => {
+        //setText("this should show in profile");
+    }
+
     const submitEvent = () => {
         let eventName = document.getElementById("birthday_name").value;
         let date = document.getElementById("birthdate").value;
@@ -85,9 +91,36 @@ function Homepage() {
 
         console.log(`eventName: ${eventName}, date: ${date}, relationship: ${relationship}`)
 
+        const event = {
+            name: eventName,
+            birthdate: date,
+            relationship: relationship
+        };
+
+        fetch('http://localhost:8081/birthday/new', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(event),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            // Optionally reset form, or navigate elsewhere, or update UI
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        // Optionally, reset addPressed to show the button again, or handle UI feedback in another way
+        //setAddPressed(0);
     }
 
+
+
+
     if (isAuthenticated) {
+        checkUserData();
         return (
             <>
                 {addPressed === 0 ?
@@ -124,7 +157,7 @@ function Homepage() {
 
                 <div>
                     {/* <LoginForm /> */}
-                    <Calendar />
+                    {/* <Calendar /> */}
                 </div>
             </>
         )

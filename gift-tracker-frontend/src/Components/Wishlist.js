@@ -6,14 +6,17 @@ const StyledDiv = styled.div`
     display: flex;
     flex-flow: column;
     justify-content:center;
+    justify-items:center;
     align-content:center;
+    align-items: center;
     padding: 10px;
     gap: 15px;
     margin: 20px;
-    border: 2px solid pink
+    left-margin: 40px
 `
 const StyledForm = styled.form`
     display: flex;
+    flex-flow: column;
     justify-content:center;
     justify-items:center;
     align-items:center;
@@ -36,13 +39,25 @@ const StyledButton = styled.button`
     background-color: #BF4F74;
     margin: 0.5em 1em;
     padding: 0.25em 1em;
-    width: 10%;
+    width: 100px;
+    height: 75px;
     left-margin: 30px;
 `
 
 const StyledHeader = styled.h2`
     display: flex;
     justify-content:center;
+    justify-items:center;
+    align-items:center;
+    align-content:center;
+`
+
+const InnerDiv = styled.div`
+    display: flex;
+    flex-flow: column;
+    justify-content:center;
+    justify-items:center;
+    align-items:center;
     align-content:center;
 `
 
@@ -55,7 +70,7 @@ function Wishlist() {
   const [searchResults, setSearchResults] = useState([]);
 
   const getLink = (gift_title) => {
-    setLink(`amazon.com/s?k=${gift_title}`)
+    setLink(`http://amazon.com/s?k=${gift_title}`)
   }
 
   useEffect (() => {
@@ -63,29 +78,49 @@ function Wishlist() {
     .then( response => response.json())
     .then(data => {
       console.log("all Gifts", data)
-      setAllGifts(data.map(item => item.title.toLowerCase()))})
+      setAllGifts(data.map(item => item))
+        fetch('http://localhost:8081/wishlist/1')
+        .then( response => response.json())
+        .then(data => {
+          console.log("user wishlist", data)
+          setWishlist(data.map(item => item))
+          return wishlist})
+        .then(setWishlist(wishlist.filter(item => allGifts.map( item => item.title.toLowerCase()).includes(item.gifts.toLowerCase())
+        )))
 
-    // fetch(`http://localhost:8081/wishlist/${userID}`)
-    // .then(response => response.json())
-    // .then(data => setWishlist(data))
-
+        })
   },[])
 
   const findGift = (e) => {
+
     setSearchQuery(e.toLowerCase());
     setSearchResults(allGifts.filter(item =>
-      item.title === searchQuery
+      item.title.toLowerCase().includes(searchQuery)
     ))
   }
 
 
   return (
     <>
-    <StyledForm>
-    <input type="text" id="search-bar" onInput={(e) => findGift(e.target.value)} label="Search an Item" />
-    </StyledForm>
+    <StyledHeader>Your Wishlist:</StyledHeader>
+    {wishlist.map(item => {
+      return(
+      <>
+      <StyledHeader>{item.gifts}</StyledHeader>
+      </>
+      )
+    })}
+        <StyledDiv>
+           <StyledForm>
+            <input type="text" id="search-bar" onInput={(e) => {
+              findGift(e.target.value)
+              getLink(e.target.value)
+                }} label="Search an Item" />
+          </StyledForm>
+          <StyledHeader id="add-wishlist">Search a Gift to Add to Your Wishlist</StyledHeader>
+        </StyledDiv>
 
-    <div id="item-container">
+        <div id="item-container">
     {searchQuery && searchQuery.length > 0 ? (
         searchResults && searchResults.length > 0 ? (
           searchResults.map((item) => (
@@ -96,10 +131,31 @@ function Wishlist() {
            </StyledDiv>
           ))
         ) : (
-          <p>No results found.</p>
+          <StyledDiv>
+          <p>No results in our database, here is a link to find your item</p>
+          <a href={link}> Click Here </a><br/>
+
+          <p>Please add your item into our database to make our site better!</p>
+          <StyledForm>
+            <InnerDiv>
+              <label htmlfor="add-wishlist-title">Title of Item:</label>
+              <input type="text" id="add-wishlist-title" onInput={(e) => getLink(e.target.value)}/> <br />
+            </InnerDiv>
+            <InnerDiv>
+               <label htmlfor="add-wishlist-image">Paste a URL image of the Item:</label>
+                <input type="text" id="add-wishlist-image"  /> <br />
+            </InnerDiv>
+            <InnerDiv>
+               <label htmlfor="add-wishlist-link">Paste Link to the Item:</label>
+                <input type="text" id="add-wishlist-link"  /> <br />
+            </InnerDiv>
+          </StyledForm>
+          <StyledButton id="add-wishlist">Add To Your Wishlist</StyledButton>
+          </StyledDiv>
         )
       ) : (
-        <StyledButton id="add-wishlist">Add To Your Wishlist</StyledButton>
+        <StyledDiv>
+        </StyledDiv>
         )}
     </div>
     </>

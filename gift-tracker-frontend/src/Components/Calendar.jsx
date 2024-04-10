@@ -18,7 +18,7 @@ function Calendar() {
           center: "title",
           end: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-        height={"90vh"}
+        height={"30vh"}
         style={{height:100, width: 100}}
       />
     </div>
