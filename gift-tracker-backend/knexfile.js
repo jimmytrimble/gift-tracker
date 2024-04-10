@@ -7,14 +7,10 @@ module.exports = {
 
   development: {
     client: 'pg',
+
+    // create an environment variable to handle this
     connection: 'postgres://postgres:docker@db:5432/db'
-    // connection: {
-    //   host: '127.0.0.1',
-    //   port: 5432,
-    //   database: 'db',
-    //   user: 'postgres',
-    //   password: 'docker'
-    // }
+    // connection: 'postgres://postgres:docker@127.0.0.1:5432/db'
   },
 
 
