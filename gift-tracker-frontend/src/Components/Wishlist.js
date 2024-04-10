@@ -79,7 +79,7 @@ function Wishlist() {
     .then(data => {
       console.log("all Gifts", data)
       setAllGifts(data.map(item => item))
-        fetch('http://localhost:8081/wishlist/1')
+        fetch('http://localhost:8081/wishlist/2')
         .then( response => response.json())
         .then(data => {
           console.log("user wishlist", data)
@@ -107,6 +107,7 @@ function Wishlist() {
       return(
       <>
       <StyledHeader>{item.gifts}</StyledHeader>
+      <img className="wishlist-image" src={item.image} alt='gift' />
       </>
       )
     })}
@@ -126,7 +127,7 @@ function Wishlist() {
           searchResults.map((item) => (
             <StyledDiv className = 'single-gift' >
              <h2>{item.title}</h2>
-              <img className="gift-image" src={item.image} alt='gift' width="250" />
+              <img className="wishlist-search" src={item.image} alt='gift' width="250" />
               <StyledButton id="add-wishlist">Add To Your Wishlist</StyledButton>
            </StyledDiv>
           ))

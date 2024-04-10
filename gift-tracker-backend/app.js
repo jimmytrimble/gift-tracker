@@ -98,6 +98,15 @@ app.get('/wishlist/:id', (req, res) => {
       .catch(err => res.status(404).send(err))
 })
 
+// GET all users
+// Necessary to see if a user exists in the database when they login via their Github account
+app.get('/users', (req, res) => {
+  knex('users')
+    .select('*')
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(404).send(err))
+})
+
 app.get('/users/:id', (req, res) => {
   const { id } = req.params;
   knex('users')

@@ -4,71 +4,103 @@ import { css, styled } from 'styled-components';
 import LoginForm from './LoginForm';
 import { useAuth0 } from '@auth0/auth0-react';
 import Calendar from "./Calendar";
-//import UserLog from '../UserLog';
+import { UserLog } from '../UserLog';
+//import  background2 from './images/background2';
+
+// export const RecommendItem = styled.div`
+// background: url(${background2?.src});
+// `;
 
 const StyledDiv = styled.div`
     display: flex;
     flex-flow: column;
-    justify-content:center;
+    justify-content:center
+    justify-items: center;
     align-content:center;
+    align-items: center;
     padding: 10px;
     gap: 15px;
     margin: 20px;
-    border: 2px solid pink
+`
+
+const NewGift = styled.div`
+    display: flex;
+    flex-flow: column;
+    justify-content:center
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    padding: 10px;
+    gap: 15px;
+    margin-left: 20%;
+    margin-right: 20%;
+    background-color: #f9a852;
+    border: 2px solid white;
 `
 
 const InnerDiv = styled.div`
     display: flex;
-    justify-content:center;
+    justify-content:center
+    justify-items: center;
     align-content:center;
+    align-items: center;
 `
 
 const StyledButton = styled.button`
     display: flex;
-    justify-content:center;
-    align-content:center;
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    align-items: center;
     color: white;
     border-radius: 3px;
     border: 2px solid #BF4F74;
     background-color: #BF4F74;
-    margin: 0.5em 1em;
-    padding: 0.25em 1em;
-    width: 10%;
-    left-margin: 30px;
+    margin: 2px;
+    padding: 5px;
+    width: 75px;
 `
 const StyledHeader = styled.h2`
     display: flex;
-    justify-content:center;
+    justify-content:center
+    justify-items: center;
     align-content:center;
+    align-items: center;
+`
+
+const StyledLI = styled.li`
+display: flex;
+    justify-content:center
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    list-style-image: 🎁;
 `
 
 function Homepage() {
     const { user, isAuthenticated } = useAuth0();
-   // const { text, setText } = useContext(UserLog);
+    const { isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser } = useContext(UserLog);
     const [addPressed, setAddPressed] = useState(0);
+    const [birthdayData, setBirthdayData] = useState([]);
+    const [allData, setAllData] = useState([]);
+    const months = ["January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"];
 
 
-    /*let userLogin = [
-        { userName: 'Noel', password: Working1 },
-        { userName: 'Nikki', password: Working2 },
-        { userName: 'Will', password: Working3 }
-    ];*/
 
-    // const [userName, setUserName] = useState('')
-    // const [password, setPassword] = useState('')
-
-    // function infoValidation(userName, password) {
-    //     if (userName === userLogin.userName && password === userLogin.password)
-    //         return ('Profile page')
-    //     else {
-    //         return (
-    //             console.log('The username or password entered is not correct. please try again.')
-    //         )
-    //     }
-    // }
 
     const checkUserData = () => {
-        //setText("this should show in profile");
+        setIsUserSaved(true);
     }
 
     const submitEvent = () => {
@@ -79,7 +111,8 @@ function Homepage() {
         let coworkerRelationship = document.getElementById("coworker").checked;
         let otherRelationship = document.getElementById("other").checked;
 
-        let relationship = 'other';
+
+        let relationship = otherRelationship;
 
         if (familyRelationship) {
             relationship = 'family';
@@ -89,10 +122,10 @@ function Homepage() {
             relationship = 'coworker';
         }
 
-        console.log(`eventName: ${eventName}, date: ${date}, relationship: ${relationship}`)
 
         const event = {
             name: eventName,
+            //user_id: loggedInUser.id,
             birthdate: date,
             relationship: relationship
         };
@@ -104,17 +137,37 @@ function Homepage() {
             },
             body: JSON.stringify(event),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            // Optionally reset form, or navigate elsewhere, or update UI
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+            .then(response => console.log(response))
+        // .then(data => {
+        //     console.log('Success:', data);
+        //     // Optionally reset form, or navigate elsewhere, or update UI
+        // })
+        // .catch((error) => {
+        //     console.log('Error:', error);
+        // });
         // Optionally, reset addPressed to show the button again, or handle UI feedback in another way
         //setAddPressed(0);
     }
+
+    // useEffect to fetch data on component mount
+    useEffect(() => {
+        fetch('http://localhost:8081/birthday')
+            .then(response => response.json())
+            .then(data => {
+                setAllData(data.sort((p1, p2) => (Date.parse(p1.birthdate) - Date.parse(p2.birthdate))));
+                setBirthdayData(allData.map(item => {
+                    const splitTime = item.birthdate.split("T");
+                    const splitDate = splitTime[0].split("-")
+                    const monthIndex = parseInt(splitDate[1]) -1;
+                    splitDate[1] = months[monthIndex];
+                    item.birthdate = `${splitDate[1]} ${splitDate[2]}`;
+                    return item
+                }))
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }, [isAuthenticated]); // Empty dependency array means this only runs once on mount
 
 
 
@@ -123,50 +176,61 @@ function Homepage() {
         checkUserData();
         return (
             <>
-                {addPressed === 0 ?
+
+                <StyledDiv>
+                    <h1>Upcoming Gifts</h1>
+                    <h2>Test header with user: {loggedInUser.username}</h2>
+                    <ul>
+                        {birthdayData.map((event, index) => (
+                            <StyledLI key={index}>🎁  {event.name} - {event.birthdate}</StyledLI>
+                        ))}
+                    </ul>
                     <StyledButton id='add-event-button' onClick={() => setAddPressed(1)}>Add Event</StyledButton>
+                </StyledDiv>
+                {addPressed === 0 ?
+                    <> </>
 
                     :
 
-                    <StyledDiv id='add-event'>
-                        <StyledHeader> Fill Out The Information Below To Track A New Gift </StyledHeader>
+                    <NewGift id='add-event'>
+                        <StyledHeader> Fill Out Below To Track A New Gift </StyledHeader>
                         <InnerDiv>
-                            <label htmlfor="birthday_name">Name of Recipient:</label>
+                            <label htmlFor="birthday_name">Name of Recipient:</label>
                             <input type="text" id="birthday_name" /> <br />
                         </InnerDiv>
                         <InnerDiv>
-                            <label htmlfor="birthdate">Birthdate/Date of Event:</label>
+                            <label htmlFor="user_id">User ID:</label>
+                            <input type="text" id="id" /> <br />
+                        </InnerDiv>
+                        <InnerDiv>
+                            <label htmlFor="birthdate">Birthdate/Date of Event:</label>
                             <input type="date" id="birthdate" name="birthdate" /> <br />
                         </InnerDiv>
                         <InnerDiv>
-                            <label htmlfor="relationship">Relationship:</label> <br />
+                            <label htmlFor="relationship">Relationship:</label> <br />
                             <input type="radio" id="family" name="relationship" value="family" />
-                            <label htmlfor="family">Family</label><br />
+                            <label htmlFor="family">Family</label><br />
                             <input type="radio" id="friend" name="relationship" value="friend" />
-                            <label htmlfor="family">Friend</label><br />
+                            <label htmlFor="family">Friend</label><br />
                             <input type="radio" id="coworker" name="relationship" value="coworker" />
-                            <label htmlfor="family">Coworker</label><br />
+                            <label htmlFor="family">Coworker</label><br />
                             <input type="radio" id="other" name="relationship" value="other" />
-                            <label htmlfor="other">Other</label><br />
+                            <label htmlFor="other">Other</label><br />
                         </InnerDiv>
                         <StyledButton type="submit" onClick={submitEvent}>Submit</StyledButton>
 
-                    </StyledDiv>
+                    </NewGift>
                 }
 
 
-                <div>
-                    {/* <LoginForm /> */}
-                    {/* <Calendar /> */}
-                </div>
             </>
         )
     } else {
         return (
-            <>
+            <StyledDiv>
                 <h2>Maybe you should login if you want to see this page</h2>
-                <img src='https://ftw.usatoday.com/wp-content/uploads/sites/90/2017/05/spongebob.jpg?w=1000&h=600&crop=1' alt='spongebob' />
-            </>
+                <img src='https://ftw.usatoday.com/wp-content/uploads/sites/90/2017/05/spongebob.jpg?w=1000&h=600&crop=1' alt='spongebob' width={400} />
+            </StyledDiv>
         )
     }
 
