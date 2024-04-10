@@ -4,7 +4,7 @@
  */
 exports.seed = async function(knex) {
   // Deletes ALL existing entries
-  await knex('birthday').del()
+  await knex.raw('TRUNCATE TABLE birthday RESTART IDENTITY CASCADE')
   await knex('birthday').insert([
     {id: 1, name: 'Avery', birthdate: '1995-06-28', interests: 'Fitness', relationship: 'family', priority: 1, gift_ideas: 'gift ideas here', notes: 'notes entered here', user_id: 6, wishlist_id: 1},
     {id: 2, name: 'Jamiel', birthdate: '1995-06-25', interests: 'Sports', relationship: 'family', priority: 1, gift_ideas: 'gift ideas here', notes: 'notes entered here', user_id: 1, wishlist_id: 1},
@@ -14,5 +14,3 @@ exports.seed = async function(knex) {
     {id: 6, name: 'Will', birthdate: '1995-06-25', interests: 'Sports', relationship: 'family', priority: 1, gift_ideas: 'gift ideas here', notes: 'notes entered here', user_id: 3, wishlist_id: 1},
   ]);
 };
-
-

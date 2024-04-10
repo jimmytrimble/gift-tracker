@@ -98,6 +98,15 @@ app.get('/wishlist/:id', (req, res) => {
       .catch(err => res.status(404).send(err))
 })
 
+// GET all users
+// Necessary to see if a user exists in the database when they login via their Github account
+app.get('/users', (req, res) => {
+  knex('users')
+    .select('*')
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(404).send(err))
+})
+
 app.get('/users/:id', (req, res) => {
   const { id } = req.params;
   knex('users')
@@ -205,7 +214,7 @@ app.post('/birthday/new', (req, res) => {
   const user_id = 1;
   const wishlist_id = 1;
   handlePriority(relationship);
-  knex('users')
+  knex('birthday')
     .insert({ name, birthdate, interests, relationship, priority, gift_ideas, notes, user_id, wishlist_id })
     .then(response => {
       res.status(201).send(`Event ${name} created.`)
