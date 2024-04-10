@@ -16,4 +16,5 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+      # - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+      - /Users/j.j./Desktop/DockerData:/var/lib/postgresql/data

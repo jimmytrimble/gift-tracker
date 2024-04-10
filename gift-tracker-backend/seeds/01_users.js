@@ -4,15 +4,17 @@
  */
 exports.seed = async function(knex) {
   // Deletes ALL existing entries
-  await knex.raw('TRUNCATE TABLE users RESTART IDENTITY CASCADE')
+
+  await knex.schema.raw('TRUNCATE TABLE users RESTART IDENTITY CASCADE')
   await knex('users').insert([
 
-    {name: 'Jamiel', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'jimmytrimble', password: 'pass', birthdate: '1995-06-25', interests: 'Sports', friendslist: '2,3,4,5'},
-    {name: 'Stephen', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'stephen-milburn', password: 'pass', birthdate: '1995-06-28', interests: 'Coding', friendslist: '3,5'},
-    {name: 'Will', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'thedigitalnode', password: 'pass', birthdate: '2000-04-08', interests: 'Sports', friendslist: '1,4'},
-    {name: 'Nikki', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'RARA2D', password: 'pass', birthdate: '2000-04-08', interests: 'Cyber', friendslist: '2'},
-    {name: 'Noel', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'Gnoel01', password: 'pass', birthdate: '2000-04-08', interests: 'Sports', friendslist: 'empty'},
-    {name: 'Avery', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'avery-cha', password: 'pass', birthdate: '2000-04-08', interests: 'Fitness', friendslist: 'empty'}
+    {name: 'Jamiel', bio: 'Im a cool kid', image: 'https://media.defense.gov/2019/Jul/26/2002163196/-1/-1/0/190726-F-ZZ999-011.JPG', username: 'jtrimble', password: 'pass', birthdate: '1995-06-25', interests: 'Sports', friendslist: '2,3,4,5'},
+    {name: 'Stephen', bio: 'i like to go to the movies', image: 'placeholder', username: 'smilburn', password: 'pass', birthdate: '1995-06-28', interests: 'Coding', friendslist: '3,5'},
+    {name: 'Will', bio: 'i have a lot of puppies', image: 'placeholder', username: 'wdallman', password: 'pass', birthdate: '2000-04-08', interests: 'Sports', friendslist: '2,4'},
+    {name: 'Nikki', bio: '', image: 'placeholder', username: 'nkhurshed', password: 'pass', birthdate: '2000-04-08', interests: 'Cyber', friendslist: '1,3'},
+    {name: 'Noel', bio: '', image: 'placeholder', username: 'gnoel', password: 'pass', birthdate: '2000-04-08', interests: 'Sports', friendslist: ''},
+    {name: 'Avery', bio: '', image: 'placeholder', username: 'aeveans', password: 'pass', birthdate: '2000-04-08', interests: 'Fitness', friendslist: ''}
+
 
   ]);
 };

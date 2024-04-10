@@ -3,12 +3,16 @@
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
+const seeding = 'postgres://postgres:docker@127.0.0.1:5432/db'
+const building = 'postgres://postgres:docker@db:5432/db'
+
 module.exports = {
 
   development: {
     client: 'pg',
 
     // create an environment variable to handle this
+
     connection: 'postgres://postgres:docker@db:5432/db'
     //connection: 'postgres://postgres:docker@127.0.0.1:5432/db'
 
@@ -21,6 +25,7 @@ module.exports = {
     //   user: 'postgres',
     //   password: 'docker'
     // }
+
   },
 
 
