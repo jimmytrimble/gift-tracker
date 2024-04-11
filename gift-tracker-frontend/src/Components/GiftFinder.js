@@ -18,7 +18,8 @@ const StyledDiv = styled.div`
 `
 const CheckboxDiv = styled.div`
     display: flex;
-    flex-flow: column;
+    flex-flow: row;
+    flex-wrap: wrap;
     justify-content:center;
     justify-items:center;
     align-content:center;
@@ -26,6 +27,7 @@ const CheckboxDiv = styled.div`
     padding: 10px;
     gap: 15px;
     margin: 20px;
+    width: 800px;
 `
 
 const StyledOption = styled.div`
@@ -39,6 +41,7 @@ const StyledOption = styled.div`
   color: white;
   width: 150px;
   height: 30px;
+  border: 2px solid white;
 `
 const StyledSelect = styled.select`
 display: flex;
@@ -51,6 +54,7 @@ display: flex;
   color: white;
   width: 150px;
   height: 30px;
+  border: 2px solid white;
 `
 const StyledButton = styled.button`
   display: flex;
@@ -62,11 +66,8 @@ const StyledButton = styled.button`
     border-radius: 3px;
     border: 2px solid #BF4F74;
     background-color: #BF4F74;
-    margin: 0.5em 1em;
-    padding: 0.25em 1em;
     width: 100px;
     height: 35px;
-    left-margin: 30px;
 `
 
 const StyledImage = styled.img`
@@ -155,9 +156,9 @@ const GiftFinder = () => {
           <option value='3'>$100+</option>
         </StyledSelect>
       </StyledDiv>
-
+      <StyledHeader>What interests does this person have?</StyledHeader>
+    <StyledDiv>
       <CheckboxDiv className="interests">
-        <StyledHeader>What interests does this person have?</StyledHeader>
         <StyledOption>
           <input type="checkbox" id="cooking" value="cooking" onChange={interestChangeHandler} />
           <span>Cooking</span>
@@ -182,11 +183,10 @@ const GiftFinder = () => {
           <input type="checkbox" id="sports" value="sports" onChange={interestChangeHandler} />
           <span>Sports</span>
         </StyledOption>
-        <StyledButton type="submit" onClick={filterPrice}>Find a Gift!</StyledButton>
       </CheckboxDiv>
-
+      <StyledButton type="submit" onClick={filterPrice}>Find a Gift!</StyledButton>
+      </StyledDiv>
       <StyledDiv className='gift results'>
-      <h2> See Your Gift Suggestions Below! </h2>
       <ResultsDiv >
         {suggestions.map(item => {
           return (

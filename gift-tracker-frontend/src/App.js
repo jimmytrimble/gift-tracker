@@ -21,7 +21,7 @@ const StyledBackground = styled.div`
 
 function App() {
   const [isUserSaved, setIsUserSaved] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState({});
   const { user, isAuthenticated } = useAuth0();
 
 

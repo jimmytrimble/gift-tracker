@@ -113,7 +113,7 @@ const StyledLI = styled.li`
     background-color: #f7d9fb;
     color: #2a4be1;
     padding: 20px;
-    width: 300px;
+    width: 500px;
     font-weight: bold;
     border: 2px solid white;
 `
@@ -123,6 +123,7 @@ function Homepage() {
     const { loggedInUser } = useContext(UserLog);
     const [addPressed, setAddPressed] = useState(0);
     const [birthdayData, setBirthdayData] = useState([]);
+    const [isBought, setIsBought] = useState(false);
     const months = ["January",
         "February",
         "March",
@@ -171,16 +172,11 @@ function Homepage() {
             },
             body: JSON.stringify(event),
         })
-            .then(response => console.log(response))
-        // .then(data => {
-        //     console.log('Success:', data);
-        //     // Optionally reset form, or navigate elsewhere, or update UI
-        // })
-        // .catch((error) => {
-        //     console.log('Error:', error);
-        // });
-        // Optionally, reset addPressed to show the button again, or handle UI feedback in another way
-        //setAddPressed(0);
+            .then(response => {
+                console.log(response)
+                document.location.reload();
+            })
+
     }
 
     const loadBirthdays = () => {
@@ -210,13 +206,26 @@ function Homepage() {
     }, [isAuthenticated]); // Empty dependency array means this only runs once on mount
 
 
-    const boughtItem= (e) => {
+    const boughtItem = (e) => {
         const clicked = document.getElementById(e);
+        console.log("clicked", e)
+        setIsBought(!isBought);
+
+
+        fetch(`http://localhost:8081/update/${e}`, {
+            method: 'PATCH',
+            body: JSON.stringify({bought : !isBought
+             })
+        })
         clicked.innerHTML = "✅"
     }
 
     const removeEvent = (e) => {
         const clicked = document.getElementById(e);
+        // fetch delete
+        // fetch(`http://localhost:8081/remove/event/${e}`, {
+        //     method: 'DELETE'
+        // })
         clicked.parentNode.removeChild(clicked);
     }
     if (isAuthenticated) {
@@ -229,7 +238,7 @@ function Homepage() {
                         {birthdayData.map((event, index) => (
                             <StyledLI id={index}>
                              {event.birthdate} for {event.name}
-                             <StyledIcon id={event.name} onClick ={ (e) => boughtItem(event.name)}>Bought</StyledIcon>
+                             <StyledIcon id={event.name} onClick ={ (e) => boughtItem(event.name)}>Completed</StyledIcon>
                             <span onClick={ (e) => removeEvent(index)}>🗑️</span>
                             </StyledLI>
                         ))}
@@ -246,10 +255,6 @@ function Homepage() {
                         <InnerDiv>
                             <label htmlFor="birthday_name">Name of Recipient:</label>
                             <input type="text" id="birthday_name" /> <br />
-                        </InnerDiv>
-                        <InnerDiv>
-                            <label htmlFor="user_id">User ID:</label>
-                            <input type="text" id="id" /> <br />
                         </InnerDiv>
                         <InnerDiv>
                             <label htmlFor="birthdate">Birthdate/Date of Event:</label>

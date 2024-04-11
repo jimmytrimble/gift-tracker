@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const axios = require('axios');
 const port = 8081;
+const oauthToken = `v^1.1#i^1#r^0#p^1#f^0#I^3#t^H4sIAAAAAAAAAOVYf2wTVRxv1226wDYjiGQB0x0QFWn77nrtteda0q5srW5rWbsBM0Le3b1bj7V35e7VUVBcFkMI/CGJzl8oIfyhxggEDAKBoJlBNGqG+IM/hIAEiEYTCcEJEhPv2jG6SQBZE5fYf5r7vu/7vs/n877f9753oK+yav768Po/qs33lG3rA31lZjM5BVRVVjxWYymrqzCBIgfztr65feX9lp8aNJhOZdh2pGUUWUPW1emUrLF5o4/IqjKrQE3SWBmmkcZino0HWltYyg7YjKpghVdShDUS8hFuimE8AuOmXIBjOM6jW+XrMROKj0AiDV3Q7WGcjJP2AqCPa1oWRWQNQxn7CApQtA3QNpJMUIClaNbJ2Ckn3UVYO5GqSYqsu9gB4c/DZfNz1SKst4YKNQ2pWA9C+COBpng0EAktaks0OIpi+Ud0iGOIs9rYp0ZFQNZOmMqiWy+j5b3ZeJbnkaYRDn9hhbFB2cB1MHcBvyC1VyABKTIcolwCR5dGyiZFTUN8axyGRRJsYt6VRTKWcO52iupqcCsRj0ee2vQQkZDV+FuchSlJlJDqIxYFA8sCsRjhj2OUSSK51RaUVJwUYM4Waw/ZvJyXdnpEAG1OKIhOl8s9slAh2ojM41ZqVGRBMkTTrG0KDiIdNRqvDVmkje4UlaNqQMQGomI/alRD0GVsamEXszgpG/uK0roQ1vzj7XdgdDbGqsRlMRqNMH4gL5GPgJmMJBDjB/O5OJI+qzUfkcQ4wzocvb299l6nXVG7HRQApGNpa0ucT6I0JHRfo9YL/tLtJ9ikPBUe6TM1icW5jI5ltZ6rOgC5m/DTXqde6SO6j4XlH2/9h6GIs2NsRZSqQhAFvCLJMR5AiwwQYCkqxD+SpA4DB+L01ExDtQfhTAryyMbreZZNI1USWKdLpPRsRTbB7RVttFcUbZxLcNtIESGAEMfxXs//qVDuNNXjiFcRLkmulyzPE5yrIwjAmjBsDbUFlyYoJaLI3sWd0eQS9ES6Q8BBGrVjMYxjtO9Oq+Gm5BtTkq5MQl+/FAIYtV46EcKKhpEwIXpxXsmgmJKS+Nzk2mCnKsSginNxlErphgmRDGQykdKc1SWj9y+PibvjXbo76j+6n27KSjNSdnKxMuZregCYkezGDWTnlbTDqHUF6u2HYV6RRz0h3pLeuU4q1jrJAltJKLSc9jxdu/YMb1eRpmRVvdu2R40OLKH0IFm/z7CqpFJI7SQnXM/pdBZDLoUmW2GXIMElOMkuW5IhKY+bAQwzIV58/ipdMdmOpFIcxeXNd9lWO8a+5PtN+R/Zbx4E/ebDZWYzaADzyDmgvtLSUW6ZWqdJGNklKNo1qVvW311VZO9BuQyU1LJppkvbB8KNdYuir8xfm8gd23LUNLXoG8O2p8HM0a8MVRZyStEnBzDrxkgFWftgNUUDmiSNFtLJdIE5N0bLyRnl088dXDC0uOm9P03DjMs1e/iFyt2Xh0H1qJPZXGEq7zebVl7c4Q5Frn0R9b27YOEMd9L98asPcw+9LLy97wFw5JNh/6HH+0Ov//b50LRVLbEPL7gfOdMMBltg777Z0WMH3zofOzqd2/7+wg0b93R3np71xvI1nz1aO2X273vMwaHw5U0nwKdXO7vO7T9l2f/cj/dZPdQuZeeltmMz8fGTNa3gA0uNe8nyKxdiA/LgCRfz0snTc5tT6747cLr3nc3ssiPz988r++tNuPujwWu/7hw8/1Tw/P2HX6zZdLa9mupOD6z9uW7g1I4tRz1dF+u/pJv6Nsi13/ywqrFq1ZXauq/2doR/WXPIdKm5YV2/9uS9e63P99RvfG0rf43Z+Gz9gtyuQ98eOH4GfX1169nvhwp7+Te9uQbD/REAAA==`;
 const knex = require("knex")(require("./knexfile.js")["development"]);
 
 app.use(cors(), express.json());
@@ -97,9 +98,8 @@ app.get('/wishlist/:id', (req, res) => {
 
     const { id } = req.params;
     knex('wishlist')
-      .select('birthday.name', 'wishlist.gifts', 'wishlist.image', 'wishlist.bought')
-      .join('birthday', 'wishlist.id', '=', 'birthday.wishlist_id')
-      .join('users', 'birthday.user_id', '=', 'users.id')
+      .select('users.name', 'wishlist.gifts', 'wishlist.image', 'wishlist.bought')
+      .join('users', 'wishlist.user_id', '=', 'users.id')
       .where('users.id', id)
       .then(data => res.status(200).json(data))
       .catch(err => res.status(404).send(err))
@@ -175,7 +175,6 @@ app.delete('/users/remove/:id', (req, res) => {
 app.get('/search', (req, res) => {
   const query = req.query.query || 'drone';
   const limit = req.query.limit || 3;
-  const oauthToken = `v^1.1#i^1#f^0#I^3#r^0#p^1#t^H4sIAAAAAAAAAOVYa2wUVRTebbc1lSIGieiGmGWQR0pmdmZ2ZndnYNfstiW7SNstu63l0eDszJ126O7MOHOXsihSSoQfagKaSiLyEH+oBWKtUX6YSECjwWjCDwNUjfHBSxKQYAyCmnhnupRtJYB0E5u4fzb33HPPPd93zrn3zCV7KqtqNsc2X5nsvKdsTw/ZU+Z0UpPIqsqK+feVl7krHGSRgnNPz6M9rt7ycwtNIZvR+aXA1DXVBJ612Yxq8rYwhOUMldcEUzF5VcgCk4cin4w0LOFpguR1Q4OaqGUwT7wuhMmMkGZlkaR8MhMIUBySqtdtprQQ5udk4OfSgshKHBADLJo3zRyIqyYUVBjCaJJmcJLBKSpFsTzL8RRHIDPLMU8rMExFU5EKQWJh213eXmsU+XprVwXTBAZERrBwPLIo2RSJ19U3phZ6i2yFCzwkoQBz5uhRrSYBT6uQyYFbb2Pa2nwyJ4rANDFveHiH0Ub5yHVn7sJ9m2qaStN0kKY50cekRbokTC7SjKwAb+2GJVEkXLZVeaBCBeZvRygiI70aiLAwakQm4nUe6685J2QUWQFGCKuPRpZFEgksnIRA7wRqAx5VDNgpCXk8sbQO59Ic4wvKpID7BEn2say/sNGwtQLLY3aq1VRJsTgzPY0ajALkNRjLDVPEDVJqUpuMiAwtj4r1AiMcMsutmA4HMQc7VSusIIuI8NjD20dgZDWEhpLOQTBiYeyETVEIE3RdkbCxk3YqFrJnrRnCOiHUea+3u7ub6PYRmtHhpUmS8rY1LEmKnSArYJauVeu2vnL7BbhiQxEBWmkqPMzryJe1KFWRA2oHFmY4n59mC7yPdis8VvoPQRFm7+iCKFWBBFlZ9sk+wNA+2S+QUikqJFxIUq/lB0ij1MwKRheAekYQAS6iPMtlgaFIvI+VaZStAJfQkYcznCzjaVby45QMAAlAOi1ywf9TodxpqieBaABYmlwvVZ6n0mxLlCTXxYSGusZoW4rW4prKNbc2dT4BFmdbJBhlwFIox2CCCd1pNdwUfG1GQcyk0P4lIcCq9ZKRENNMCKRxwUuKmg4SWkYR8xMrwD5DSggGzCdBJoME4wIZ0fV4ic7qUsH7l8fE3eEu4R3139xPN0VlWik7sVBZ601kQNAVwrqBCFHLejWr1gXUfljiVbbX48KtoMZ1QqFGIIfRKtJwy0loFlzCXCMSBjC1nIGabaLJ6sBSWhdQ0X0GDS2TAUYrNe56zmZzUEhnwEQr7BIkuCJMsMuWClB0kKUolhsXLtG+SldNtCOpJEexa9HdtdXe0d/4YYf9o3qdR8he50dlTie5kJxNzSJnVpa3uMqr3aYCAaEIMmEqHSr6dDUA0QXyuqAYZQ84Lu/ti9W665teqXk6lT+24zNHddETw5528qGRR4aqcmpS0YsDOePGTAU1ZfpkmiEZCgWc5VBnSc66MeuiHnRNm/raH3H5x7MDgxuD36jbdq0+enXncXLyiJLTWeFw9Tod691zVn7554XVwdqz8NRbmy71be9/t8p58KCvf8aUz6/E5wVi0ccGHjl79V5mkHvOe3Hw6y9ePXWtuqrj+58u7V5x7rA4+1pz2ZxDT/GzD3Rsvew4/kw0vrl3xfttnsXEvK/21X/c+17/4/rpExvmSD//Esa7Fmwxuv66cCAScF+e9vuSDy/+tqZm7mDti5Ub539X/vL+BQOM+7w/xe9mE9k3hZkbjn7ANZ9vP9S+L/L6yb0vDD25v7+OPtkXHJp6+odvh9xXtfnb47HzW47sdBy8f921xEB0+5n49BPxHdOe3ZFqqanZ6vr0+bdXBg43nGkbcs9dYfS1H/PmPnnp4fXrJ73jylcvk9/4Vdu1aTiWfwN0p+iW/BEAAA==`
   const ebayApiEndpoint = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`
 
   axios.get(ebayApiEndpoint, {
@@ -237,7 +236,6 @@ app.post('/update/search', (req, res) => {
   const limit = req.query.limit || 5;
   var { title, image } = req.body
 
-  const oauthToken = `v^1.1#i^1#f^0#I^3#r^0#p^1#t^H4sIAAAAAAAAAOVYa2wUVRTebbc1lSIGieiGmGWQR0pmdmZ2ZndnYNfstiW7SNstu63l0eDszJ126O7MOHOXsihSSoQfagKaSiLyEH+oBWKtUX6YSECjwWjCDwNUjfHBSxKQYAyCmnhnupRtJYB0E5u4fzb33HPPPd93zrn3zCV7KqtqNsc2X5nsvKdsTw/ZU+Z0UpPIqsqK+feVl7krHGSRgnNPz6M9rt7ycwtNIZvR+aXA1DXVBJ612Yxq8rYwhOUMldcEUzF5VcgCk4cin4w0LOFpguR1Q4OaqGUwT7wuhMmMkGZlkaR8MhMIUBySqtdtprQQ5udk4OfSgshKHBADLJo3zRyIqyYUVBjCaJJmcJLBKSpFsTzL8RRHIDPLMU8rMExFU5EKQWJh213eXmsU+XprVwXTBAZERrBwPLIo2RSJ19U3phZ6i2yFCzwkoQBz5uhRrSYBT6uQyYFbb2Pa2nwyJ4rANDFveHiH0Ub5yHVn7sJ9m2qaStN0kKY50cekRbokTC7SjKwAb+2GJVEkXLZVeaBCBeZvRygiI70aiLAwakQm4nUe6685J2QUWQFGCKuPRpZFEgksnIRA7wRqAx5VDNgpCXk8sbQO59Ic4wvKpID7BEn2say/sNGwtQLLY3aq1VRJsTgzPY0ajALkNRjLDVPEDVJqUpuMiAwtj4r1AiMcMsutmA4HMQc7VSusIIuI8NjD20dgZDWEhpLOQTBiYeyETVEIE3RdkbCxk3YqFrJnrRnCOiHUea+3u7ub6PYRmtHhpUmS8rY1LEmKnSArYJauVeu2vnL7BbhiQxEBWmkqPMzryJe1KFWRA2oHFmY4n59mC7yPdis8VvoPQRFm7+iCKFWBBFlZ9sk+wNA+2S+QUikqJFxIUq/lB0ij1MwKRheAekYQAS6iPMtlgaFIvI+VaZStAJfQkYcznCzjaVby45QMAAlAOi1ywf9TodxpqieBaABYmlwvVZ6n0mxLlCTXxYSGusZoW4rW4prKNbc2dT4BFmdbJBhlwFIox2CCCd1pNdwUfG1GQcyk0P4lIcCq9ZKRENNMCKRxwUuKmg4SWkYR8xMrwD5DSggGzCdBJoME4wIZ0fV4ic7qUsH7l8fE3eEu4R3139xPN0VlWik7sVBZ601kQNAVwrqBCFHLejWr1gXUfljiVbbX48KtoMZ1QqFGIIfRKtJwy0loFlzCXCMSBjC1nIGabaLJ6sBSWhdQ0X0GDS2TAUYrNe56zmZzUEhnwEQr7BIkuCJMsMuWClB0kKUolhsXLtG+SldNtCOpJEexa9HdtdXe0d/4YYf9o3qdR8he50dlTie5kJxNzSJnVpa3uMqr3aYCAaEIMmEqHSr6dDUA0QXyuqAYZQ84Lu/ti9W665teqXk6lT+24zNHddETw5528qGRR4aqcmpS0YsDOePGTAU1ZfpkmiEZCgWc5VBnSc66MeuiHnRNm/raH3H5x7MDgxuD36jbdq0+enXncXLyiJLTWeFw9Tod691zVn7554XVwdqz8NRbmy71be9/t8p58KCvf8aUz6/E5wVi0ccGHjl79V5mkHvOe3Hw6y9ePXWtuqrj+58u7V5x7rA4+1pz2ZxDT/GzD3Rsvew4/kw0vrl3xfttnsXEvK/21X/c+17/4/rpExvmSD//Esa7Fmwxuv66cCAScF+e9vuSDy/+tqZm7mDti5Ub539X/vL+BQOM+7w/xe9mE9k3hZkbjn7ANZ9vP9S+L/L6yb0vDD25v7+OPtkXHJp6+odvh9xXtfnb47HzW47sdBy8f921xEB0+5n49BPxHdOe3ZFqqanZ6vr0+bdXBg43nGkbcs9dYfS1H/PmPnnp4fXrJ73jylcvk9/4Vdu1aTiWfwN0p+iW/BEAAA==`
   const ebayApiEndpoint = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`
 
   axios.get(ebayApiEndpoint, {
@@ -308,6 +306,21 @@ app.patch('/users/update/:id', (req, res) => {
     .then(response => {
       res.status(201).send('Updated successfully.')
     })
+  })
+
+app.patch('/update/:name', (req, res) => {
+  const { bought } = req.body;
+  const { name } = req.params
+  let updates = {};
+  if (bought) updates.bought = bought;
+  knex('birthday')
+    // .join('users', 'wishlist.user_id', '=', 'users.id')
+    .first()
+    .where('name', name)
+    .update(updates)
+    .then(response => {
+      res.status(201).send(`Bought = ${updates.bought}`)
+  })
 })
 
 // --- DELETE ---
@@ -322,5 +335,18 @@ app.delete('/users/remove/:id', (req, res) => {
       else res.status(404).send(`User ${id} not found.`)
     })
 })
+
+app.delete('/remove/event/:name', (req, res) => {
+  const { name } = req.params;
+  knex('birthday')
+    .where('name', name)
+    .first()
+    .del()
+    .then(deleted => {
+      if (deleted) res.status(202).send(`Event ${id} deleted.`)
+      else res.status(404).send(`Event ${id} not found.`)
+    })
+})
+
 
 app.listen(port, (req, res) => console.log(`Express server is listening on ${port}.`))

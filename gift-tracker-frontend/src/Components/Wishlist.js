@@ -1,8 +1,16 @@
 import React from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import {useEffect, useState, useContext} from 'react';
 import styled from 'styled-components';
 import { UserLog } from '../UserLog';
-
+const BasicDiv = styled.div`
+display: flex;
+    flex-flow: column;
+    justify-content:center;
+    justify-items:center;
+    align-content:center;
+    align-items: center;
+`
 const StyledDiv = styled.div`
     display: flex;
     flex-flow: column;
@@ -14,11 +22,50 @@ const StyledDiv = styled.div`
     gap: 15px;
     margin: 20px;
     left-margin: 40px
+    width: 90%;
+    background-color: #c0d3c2;
+`
+const StyledSearchResults = styled.div`
+  display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content:center;
+    justify-items:center;
+    align-content:center;
+    align-items: center;
+    width: 80%;
+`
+const StyledP = styled.p`
+  display: flex;
+  flex-flow: column;
+  justify-content:center;
+  justify-items:center;
+  align-content:center;
+  align-items: center;
+  color: #1937c1;
+  font-size: large;
+  font-weight: bold
+`
+
+const StyledWishlist = styled.div`
+  display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content:center;
+    justify-items:center;
+    align-content:center;
+    align-items: center;
+    padding: 10px;
+    gap: 15px;
+    margin: 20px;
+    left-margin: 40px
+    width: 90%;
 `
 
 const StyledImage = styled.img`
   height: 200px;
   width: 200px;
+  border: 3px solid #96a6ef;
 `
 const StyledForm = styled.form`
     display: flex;
@@ -46,7 +93,7 @@ const StyledButton = styled.button`
     margin: 0.5em 1em;
     padding: 0.25em 1em;
     width: 100px;
-    height: 75px;
+    height: 50px;
     left-margin: 30px;
 `
 
@@ -73,22 +120,38 @@ function Wishlist() {
 
   const [allGifts, setAllGifts] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [link, setLink] = useState('');
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const { isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser } = useContext(UserLog);
+  const { isAuthenticated } = useAuth0();
+  const { loggedInUser } = useContext(UserLog);
+  const [foundItem, setFoundItem] = useState({});
+  const [searchItem, setSearchItem] = useState('');
+  const [link, setLink] = useState('');
+  const [didSearch, setDidSearch] = useState(0)
 
   const getLink = (gift_title) => {
-    setLink(`http://amazon.com/s?k=${gift_title}`)
+    fetch(`http://localhost:8081/search?query=${gift_title}`)
+    .then(response => response.json())
+    .then(data => {
+      setFoundItem(data);
+      console.log("found item", foundItem)
+      setLink(`http://amazon.com/s?k=${gift_title}`)
+      setDidSearch(1);
+    })
+  }
+
+  const addWishlist = () => {
+
   }
 
   useEffect (() => {
+    if(isAuthenticated){
     fetch('http://localhost:8081/admin/gifts')
     .then( response => response.json())
     .then(data => {
       console.log("all Gifts", data)
       setAllGifts(data.map(item => item))
-        fetch(`http://localhost:8081/wishlist/6`)
+        fetch(`http://localhost:8081/wishlist/${loggedInUser.id}`)
         .then( response => response.json())
         .then(data => {
           console.log("user wishlist", data)
@@ -98,7 +161,8 @@ function Wishlist() {
         // )))
 
         })
-  },[])
+      }
+  },[loggedInUser])
 
   const findGift = (e) => {
 
@@ -111,56 +175,56 @@ function Wishlist() {
 
   return (
     <>
-    <StyledHeader>Your Wishlist:</StyledHeader>
+    <StyledHeader>{loggedInUser.name}'s Wishlist:</StyledHeader>
+    <StyledWishlist>
     {wishlist.map(item => {
       return(
       <StyledDiv>
-      <StyledHeader>{item.gifts}</StyledHeader>
       <StyledImage className="wishlist-image" src={item.image} alt='gift' />
+      <StyledHeader>{item.gifts}</StyledHeader>
       </StyledDiv>
       )
     })}
-        <StyledDiv>
+    </StyledWishlist>
+        <BasicDiv>
            <StyledForm>
             <input type="text" id="search-bar" onInput={(e) => {
               findGift(e.target.value)
-              getLink(e.target.value)
+              setSearchItem(e.target.value)
                 }} label="Search an Item" />
           </StyledForm>
           <StyledHeader id="add-wishlist">Search a Gift to Add to Your Wishlist</StyledHeader>
-        </StyledDiv>
+        </BasicDiv>
 
         <div id="item-container">
     {searchQuery && searchQuery.length > 0 ? (
         searchResults && searchResults.length > 0 ? (
           searchResults.map((item) => (
             <StyledDiv className = 'single-gift' >
-             <h2>{item.title}</h2>
               <img className="wishlist-search" src={item.image} alt='gift' width="250" />
+              <p>{item.title}</p>
               <StyledButton id="add-wishlist">Add To Your Wishlist</StyledButton>
            </StyledDiv>
           ))
         ) : (
           <StyledDiv>
-          <p>No results in our database, here is a link to find your item</p>
-          <a href={link}> Click Here </a><br/>
+          <StyledP>No results in our database, click SEARCH to add to our database</StyledP>
+          <StyledButton onClick={() => getLink(searchItem)}>Search!</StyledButton>
+         {didSearch > 0 ?
+         <StyledSearchResults>
+          {foundItem.map(item => (
+            <StyledDiv>
+            <h2>{item.title}</h2>
+            <img src={item.imageUrl} alt="founditem"/>
+            <a href={item.ebayUrl}>Click to Buy from EBAY</a>
+            <a href={link}>Click to Buy from AMAZON</a>
+            <StyledButton onClick={ () => addWishlist} id="add-wishlist">Add To Your Wishlist</StyledButton>
+            </StyledDiv>
+          )) }
+          </StyledSearchResults>
+           :
+          <></>}
 
-          <p>Please add your item into our database to make our site better!</p>
-          <StyledForm>
-            <InnerDiv>
-              <label htmlfor="add-wishlist-title">Title of Item:</label>
-              <input type="text" id="add-wishlist-title" onInput={(e) => getLink(e.target.value)}/> <br />
-            </InnerDiv>
-            <InnerDiv>
-               <label htmlfor="add-wishlist-image">Paste a URL image of the Item:</label>
-                <input type="text" id="add-wishlist-image"  /> <br />
-            </InnerDiv>
-            <InnerDiv>
-               <label htmlfor="add-wishlist-link">Paste Link to the Item:</label>
-                <input type="text" id="add-wishlist-link"  /> <br />
-            </InnerDiv>
-          </StyledForm>
-          <StyledButton id="add-wishlist">Add To Your Wishlist</StyledButton>
           </StyledDiv>
         )
       ) : (

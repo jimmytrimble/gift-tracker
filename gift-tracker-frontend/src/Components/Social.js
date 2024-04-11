@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import React from 'react';
-import {useEffect, useState, useContext} from 'react';
+import { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { UserLog } from '../UserLog';
 
@@ -13,9 +13,21 @@ const StyledDiv = styled.div`
     align-content:center;
     align-items: center;
     padding: 10px;
-    gap: 15px;
+    gap: 2px;
     margin: 20px;
     left-margin: 40px
+`
+
+const ColorDiv = styled.div`
+  display: flex;
+    flex-flow: column;
+    justify-content:center;
+    justify-items:center;
+    align-content:center;
+    align-items: center;
+    background-color: #c0d3c2;
+    width: 750px;
+    padding: 25px;
 `
 const StyledButton = styled.button`
   display: flex;
@@ -48,59 +60,87 @@ function Social() {
   const { isAuthenticated } = useAuth0();
   const { loggedInUser } = useContext(UserLog);
   const [friends, setFriends] = useState([]);
-  const [userList, setUserList] = useState([])
-  const [allUsers, setAllUsers] = useState([])
+  const [userList, setUserList] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [foundFriend, setFoundFriend] = useState();
+  const [didSearch, setDidSearch] = useState(0);
 
   useEffect(() => {
-    setFriends([])
-    //fetching the logged in user's information
-    fetch('http://localhost:8081/users/1')
-    .then(response => response.json())
-    .then(data => {
-      //splitting friends list by the comma
-      setUserList(data.friendslist.split(","))
-      return userList
-      })
+    console.log("isAuthenticated: ", isAuthenticated)
+
+    if (isAuthenticated) {
+      console.log(loggedInUser)
+      let testUserList = loggedInUser.friendslist.split(",")
+
       //fetch each friends profile
-    .then( splitFriends => {
-      splitFriends.map( item => {
+      testUserList.map(item => {
         fetch(`http://localhost:8081/users/${item}`)
-        .then(response => response.json())
-        //set friends state to the pulled user's profile data
-        .then(data => setFriends(...friends, data))
+          .then(response => response.json())
+          //set friends state to the pulled user's profile data
+          .then(data => {
+            console.log("second fetch data", data[0])
+            const exists = friends.find(friend => friend.id === data[0].id)
+            if (!exists)
+              setFriends(prevFriends => [...prevFriends, data[0]])
+          })
       })
-    })
-  }, [])
+    }
+  }, [loggedInUser])
 
   const findFriend = () => {
     const friend = document.getElementById("social-search").value;
-    fetch("http://localhost:300/users")
-    .then(response => response.json())
-    .then(data => {
-      setAllUsers(data);
-      return allUsers;
-    })
-    .then( all => all)
+    console.log("friend", friend)
+    fetch("http://localhost:8081/users")
+      .then(response => response.json())
+      .then(data => {
+        setAllUsers(data);
+        console.log("data", data)
+        return allUsers;
+      })
+      .then(all => {
+        setFoundFriend(all.filter( item => item.username === friend))
+        console.log("foundfreind", foundFriend)
+        setDidSearch(1);
+      })
   }
 
-  if(isAuthenticated){
+  if (isAuthenticated) {
     return (
       <>
-      <StyledDiv>
-      <StyledHeader>Your Friend List</StyledHeader>
-        {friends.map( item => {
+        <StyledDiv>
+          <StyledHeader>{loggedInUser.name}'s Friend List</StyledHeader>
+          {console.log("friends in redner: ", friends)}
           <StyledDiv>
-          <h3>Name: {item.name}</h3> <br/>
-          <h3>Username: {item.username}</h3>
-          <img alt="friend" src={item.image} />
-          <h3>Interests: {item.interests}</h3>
-
+            {friends.map(item => (
+              <ColorDiv key={item.id}>
+                <img alt="friend" src={item.image} />
+                <p>{item.name}</p>
+                <p>Username: {item.username}</p>
+                <p>Interests: {item.interests}</p>
+                <p>Bio: {item.bio}</p>
+              </ColorDiv>
+            ))}
           </StyledDiv>
-        })}
-      </StyledDiv>
-      <StyledDiv>
-        <input id="social-search" type="text" placeholder="search username here"></input>
-        <StyledButton id="social-search-button" onClick={findFriend}>Search</StyledButton>
+        </StyledDiv>
+        <StyledDiv>
+          <input id="social-search" type="text" placeholder="search username here"></input>
+          <StyledButton id="social-search-button" onClick={findFriend}>Search</StyledButton>
+        </StyledDiv>
+        <StyledDiv>
+        {didSearch > 0 ?
+          foundFriend.map(item => (
+            <ColorDiv>
+                <img alt="friend" src={item.image} />
+                <p>{item.name}</p>
+                <p>Username: {item.username}</p>
+                <p>Interests: {item.interests}</p>
+                <p>Bio: {item.bio}</p>
+                <StyledButton>Add Friend</StyledButton>
+            </ColorDiv>
+          ))
+        :
+        <></>
+      }
       </StyledDiv>
       </>
     )
