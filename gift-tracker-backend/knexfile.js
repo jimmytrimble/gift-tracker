@@ -12,8 +12,8 @@ module.exports = {
     client: 'pg',
 
     // create an environment variable to handle this
-    connection: building
-    // connection: seeding
+    //connection: building
+    connection: seeding
 
   },
 
