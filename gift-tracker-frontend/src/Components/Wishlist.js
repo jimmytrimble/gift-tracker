@@ -1,6 +1,7 @@
 import React from 'react';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useContext} from 'react';
 import styled from 'styled-components';
+import { UserLog } from '../UserLog';
 
 const StyledDiv = styled.div`
     display: flex;
@@ -13,6 +14,11 @@ const StyledDiv = styled.div`
     gap: 15px;
     margin: 20px;
     left-margin: 40px
+`
+
+const StyledImage = styled.img`
+  height: 200px;
+  width: 200px;
 `
 const StyledForm = styled.form`
     display: flex;
@@ -46,10 +52,12 @@ const StyledButton = styled.button`
 
 const StyledHeader = styled.h2`
     display: flex;
-    justify-content:center;
-    justify-items:center;
-    align-items:center;
+    justify-content: center;
+    justify-items: center;
     align-content:center;
+    align-items: center;
+    color:#BF4F74;
+
 `
 
 const InnerDiv = styled.div`
@@ -68,6 +76,7 @@ function Wishlist() {
   const [link, setLink] = useState('');
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const { isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser } = useContext(UserLog);
 
   const getLink = (gift_title) => {
     setLink(`http://amazon.com/s?k=${gift_title}`)
@@ -79,14 +88,14 @@ function Wishlist() {
     .then(data => {
       console.log("all Gifts", data)
       setAllGifts(data.map(item => item))
-        fetch('http://localhost:8081/wishlist/2')
+        fetch(`http://localhost:8081/wishlist/6`)
         .then( response => response.json())
         .then(data => {
           console.log("user wishlist", data)
-          setWishlist(data.map(item => item))
+          setWishlist(data)
           return wishlist})
-        .then(setWishlist(wishlist.filter(item => allGifts.map( item => item.title.toLowerCase()).includes(item.gifts.toLowerCase())
-        )))
+        // .then(setWishlist(wishlist.filter(item => allGifts.map( item => item.title.toLowerCase()).includes(item.gifts.toLowerCase())
+        // )))
 
         })
   },[])
@@ -105,10 +114,10 @@ function Wishlist() {
     <StyledHeader>Your Wishlist:</StyledHeader>
     {wishlist.map(item => {
       return(
-      <>
+      <StyledDiv>
       <StyledHeader>{item.gifts}</StyledHeader>
-      <img className="wishlist-image" src={item.image} alt='gift' />
-      </>
+      <StyledImage className="wishlist-image" src={item.image} alt='gift' />
+      </StyledDiv>
       )
     })}
         <StyledDiv>

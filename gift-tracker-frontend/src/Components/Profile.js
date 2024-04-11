@@ -1,28 +1,34 @@
 // Showing the calendar view with birthdays saved
 // showing the user bio with their budget
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import styled from "styled-components";
-import LoginForm from './LoginForm';
 import { UserLog } from '../UserLog';
 
 
 const ProfileLayout = styled.div`
   display: flex;
   align-items: center;
-  justify-content: left;
+  justify-content: center;
   gap: 10px;
   margin: 10px;
 `
 
 const ProfileInfo = styled.form`
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+const Uimage= styled.div`
+display: flex;
+allign-item: right;
+justify content: right;
 `
 
 function Profile() {
   const { user, isAuthenticated } = useAuth0();
-  const { isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser } = useContext(UserLog);
+  const { loggedInUser } = useContext(UserLog);
   const [interests, setInterests] = useState([]);
 
   const updateProfile = () => {
@@ -54,28 +60,12 @@ function Profile() {
   }
 
 
-  useEffect(() => {
-    fetch('http://localhost:8081/users')
-      .then(response => response.json())
-      .then(data => {
-        if (isAuthenticated) {
-          let loggedUser = data.filter(databaseUser => databaseUser.username === user.nickname)
-          console.log("logged user is: ", loggedUser[0])
-          console.log("Users birthday is: ", loggedUser[0].birthdate)
-          setLoggedInUser(loggedUser[0]);
-        }
-      })
-  }, [isAuthenticated])
-
-
-
-
   if (isAuthenticated) {
 
     return (
       <>
         <ProfileLayout>
-          {user?.picture && <img src={user.picture} alt={user?.name} />}
+          <Uimage>{user?.picture && <img src={user.picture} alt={user?.name} />}</Uimage>
           <ul>
             {/* {Object.keys(loggedInUser).map((objKey, i) => <li key={i}>{objKey}: {loggedInUser[objKey]}</li>)} */}
             <li>{loggedInUser.name}</li>

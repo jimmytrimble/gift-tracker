@@ -27,6 +27,31 @@ const CheckboxDiv = styled.div`
     gap: 15px;
     margin: 20px;
 `
+
+const StyledOption = styled.div`
+  display: flex;
+  flex-flow: row;
+  justify-content:center;
+  justify-items:center;
+  align-content:center;
+  align-items: center;
+  background-color: #96a6ef;
+  color: white;
+  width: 150px;
+  height: 30px;
+`
+const StyledSelect = styled.select`
+display: flex;
+  flex-flow: row;
+  justify-content:center;
+  justify-items:center;
+  align-content:center;
+  align-items: center;
+  background-color: #96a6ef;
+  color: white;
+  width: 150px;
+  height: 30px;
+`
 const StyledButton = styled.button`
   display: flex;
     justify-content:center;
@@ -50,8 +75,9 @@ const StyledImage = styled.img`
 `
 
 const ResultsDiv = styled.div`
-display: flex;
+  display: flex;
     flex-flow: row;
+    flex-wrap: wrap;
     justify-content:center;
     justify-items:center;
     align-content:center;
@@ -60,11 +86,20 @@ display: flex;
     gap: 15px;
     margin: 10px;
 `
+const StyledHeader = styled.h2`
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    color:#BF4F74;
 
+`
 const GiftFinder = () => {
 
   const [interests, setInterests] = useState([]);
   const [allGifts, setAllGifts] = useState([]);
+  const [priceSuggestions, setPriceSuggestions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
 
@@ -79,14 +114,18 @@ const GiftFinder = () => {
 
   const filterPrice = () => {
     const priceRange = parseInt(document.getElementById("price-range").value);
-
-    setSuggestions(allGifts.filter(item => item.price === priceRange))
-
+    if(priceRange > 0){
+      setPriceSuggestions(allGifts.filter(item => item.price === priceRange))
+      filterInterests()
+    }
+    else{
+      setPriceSuggestions(allGifts)
+      filterInterests()
+    }
   }
 
   const interestChangeHandler = (event) => {
     if (interests.includes(event.target.value)) {
-
       setInterests(interests.filter(item => item !== event.target.value))
     } else {
       setInterests([...interests, event.target.value])
@@ -95,56 +134,63 @@ const GiftFinder = () => {
 
   }
   const filterInterests = async () => {
-    const newItems = allGifts.filter(item => interests.includes(item.interests));
-    await setSuggestions(newItems)
+    if(interests.length > 0){
+      const newItems = priceSuggestions.filter(item => interests.includes(item.interests));
+      console.log("newItems", newItems)
+      await setSuggestions(newItems)
+    }
+    else{
+      await setSuggestions(priceSuggestions)
+    }
   }
 
   return (
     <>
       <StyledDiv className="price-range">
-        <h2>What price range would you like to stay in?</h2>
-        <select inputid='price-range' id='price-range'>
+        <StyledHeader>What price range would you like to stay in?</StyledHeader>
+        <StyledSelect inputid='price-range' id='price-range' onChange={filterPrice}>
+          <option value ='0'>N/A</option>
           <option value='1'>$0-$25</option>
-          <option value='2'>$25-$50</option>
+          <option value='2'>$25-$100</option>
           <option value='3'>$100+</option>
-        </select>
-        <StyledButton type="submit" onClick={filterPrice}>Filter Price</StyledButton>
+        </StyledSelect>
       </StyledDiv>
 
       <CheckboxDiv className="interests">
-        <h2>What interests does this person have?</h2>
-        <div>
-          <input type="checkbox" id="cooking" value="Cooking" onChange={interestChangeHandler} />
+        <StyledHeader>What interests does this person have?</StyledHeader>
+        <StyledOption>
+          <input type="checkbox" id="cooking" value="cooking" onChange={interestChangeHandler} />
           <span>Cooking</span>
-        </div>
-        <div>
-          <input type="checkbox" id="fashion" value="Fashion" onChange={interestChangeHandler} />
+        </StyledOption>
+        <StyledOption>
+          <input type="checkbox" id="fashion" value="fashion" onChange={interestChangeHandler} />
           <span>Fashion</span>
-        </div>
-        <div>
-          <input type="checkbox" id="fitness" value="Fitness" onChange={interestChangeHandler} />
+        </StyledOption>
+        <StyledOption>
+          <input type="checkbox" id="fitness" value="fitness" onChange={interestChangeHandler} />
           <span>Fitness</span>
-        </div>
-        <div>
-          <input type="checkbox" id="jewelry" value="Jewelry" onChange={interestChangeHandler} />
+        </StyledOption>
+        <StyledOption>
+          <input type="checkbox" id="jewelry" value="jewelry" onChange={interestChangeHandler} />
           <span>Jewelry</span>
-        </div>
-        <div>
-          <input type="checkbox" id="outdoors" value="Outdoors" onChange={interestChangeHandler} />
+        </StyledOption>
+        <StyledOption>
+          <input type="checkbox" id="outdoors" value="outdoors" onChange={interestChangeHandler} />
           <span>Outdoors</span>
-        </div>
-        <div>
-          <input type="checkbox" id="sports" value="Sports" onChange={interestChangeHandler} />
+        </StyledOption>
+        <StyledOption>
+          <input type="checkbox" id="sports" value="sports" onChange={interestChangeHandler} />
           <span>Sports</span>
-        </div>
-        <StyledButton type="submit" onClick={filterInterests}>Filter Interests</StyledButton>
+        </StyledOption>
+        <StyledButton type="submit" onClick={filterPrice}>Find a Gift!</StyledButton>
       </CheckboxDiv>
 
-      <ResultsDiv className='gift results'>
+      <StyledDiv className='gift results'>
+      <h2> See Your Gift Suggestions Below! </h2>
+      <ResultsDiv >
         {suggestions.map(item => {
           return (
             <>
-              <h2> Here are your gift suggestions! </h2>
               <StyledDiv className='giftItem' >
                 <h2>{item.title}</h2>
                 <StyledImage id='gift-pic' src={item.image} alt='gift' />
@@ -154,6 +200,7 @@ const GiftFinder = () => {
           )
         })}
       </ResultsDiv>
+      </StyledDiv>
     </>
   )
 }

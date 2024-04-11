@@ -14,11 +14,9 @@ import NavMenu from './Components/NavMenu';
 import styled from "styled-components";
 
 const StyledBackground = styled.div`
-  background: linear-gradient(135deg, #ffd38e, #ed6856);
-⁠  background-size: 400% 400%;
-  background-image: "https://static.vecteezy.com/system/resources/previews/006/051/624/original/organic-abstract-pastel-shapes-background-minimalist-aesthetic-free-vector.jpg"
-  animation: gradient_anim 23s ease infinite;
-  height: 1000px;
+
+  background-image: url("https://static.vecteezy.com/system/resources/previews/006/051/624/original/organic-abstract-pastel-shapes-background-minimalist-aesthetic-free-vector.jpg");
+  height: 2000px;
 `
 
 function App() {
@@ -33,8 +31,8 @@ function App() {
       .then(data => {
         if (isAuthenticated) {
           let loggedUser = data.filter(databaseUser => databaseUser.username === user.nickname)
-          console.log("logged user is: ", loggedUser[0])
-          console.log("Users birthday is: ", loggedUser[0].birthdate)
+          // console.log("logged user is: ", loggedUser[0])
+          // console.log("Users birthday is: ", loggedUser[0].birthdate)
           setLoggedInUser(loggedUser[0]);
 
         }

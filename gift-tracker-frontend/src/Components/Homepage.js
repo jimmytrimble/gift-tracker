@@ -14,15 +14,25 @@ import { UserLog } from '../UserLog';
 const StyledDiv = styled.div`
     display: flex;
     flex-flow: column;
-    justify-content:center
+    justify-content:center;
     justify-items: center;
     align-content:center;
     align-items: center;
     padding: 10px;
-    gap: 15px;
+    gap: 10px;
     margin: 20px;
 `
-
+const StyledUL = styled.ul`
+display: flex;
+    flex-flow: column;
+    justify-content:center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    margin: 20px;
+`
 const NewGift = styled.div`
     display: flex;
     flex-flow: column;
@@ -60,48 +70,72 @@ const StyledButton = styled.button`
     padding: 5px;
     width: 75px;
 `
-const StyledHeader = styled.h2`
-    display: flex;
-    justify-content:center
-    justify-items: center;
-    align-content:center;
-    align-items: center;
-`
 
-const StyledLI = styled.li`
-display: flex;
-    justify-content:center
+const StyledIcon = styled.button`
+    display: flex;
+    flex-flow: row;
+    justify-content: center
+    justify-items: center;
+    align-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 3px;
+    border: 2px solid white;
+    background-color: #56c1ab;
+`
+const StyledHeader = styled.h1`
+    display: flex;
+    justify-content: center;
     justify-items: center;
     align-content:center;
     align-items: center;
-    list-style-image: 🎁;
+    color:#BF4F74;
+    background-color: white;
+    width:100%;
+`
+const StyledTitle = styled.h1`
+display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    color:#BF4F74;
+`
+const StyledLI = styled.li`
+    display: flex;
+    flex-flow:row;
+    justify-content:center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    list-style-type: none;
+    gap: 10px;
+    background-color: #f7d9fb;
+    color: #2a4be1;
+    padding: 20px;
+    width: 300px;
+    font-weight: bold;
+    border: 2px solid white;
 `
 
 function Homepage() {
-    const { user, isAuthenticated } = useAuth0();
-    const { isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser } = useContext(UserLog);
+    const { isAuthenticated } = useAuth0();
+    const { loggedInUser } = useContext(UserLog);
     const [addPressed, setAddPressed] = useState(0);
     const [birthdayData, setBirthdayData] = useState([]);
-    const [allData, setAllData] = useState([]);
     const months = ["January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December"];
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"];
 
-
-
-
-    const checkUserData = () => {
-        setIsUserSaved(true);
-    }
 
     const submitEvent = () => {
         let eventName = document.getElementById("birthday_name").value;
@@ -125,7 +159,7 @@ function Homepage() {
 
         const event = {
             name: eventName,
-            //user_id: loggedInUser.id,
+            user_id: loggedInUser.id,
             birthdate: date,
             relationship: relationship
         };
@@ -149,42 +183,57 @@ function Homepage() {
         //setAddPressed(0);
     }
 
+    const loadBirthdays = () => {
+        fetch('http://localhost:8081/birthday')
+        .then(response => response.json())
+        .then(data => {
+            let sortedBirthdates = data.sort((p1, p2) => (Date.parse(p1.birthdate) - Date.parse(p2.birthdate)));
+            setBirthdayData(sortedBirthdates.map(item => {
+                const splitTime = item.birthdate.split("T");
+                const splitDate = splitTime[0].split("-");
+                const monthIndex = parseInt(splitDate[1]) - 1;
+                splitDate[1] = months[monthIndex];
+                item.birthdate = `${splitDate[1]} ${splitDate[2]}`;
+                return item
+            }))
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }
+
     // useEffect to fetch data on component mount
     useEffect(() => {
-        fetch('http://localhost:8081/birthday')
-            .then(response => response.json())
-            .then(data => {
-                setAllData(data.sort((p1, p2) => (Date.parse(p1.birthdate) - Date.parse(p2.birthdate))));
-                setBirthdayData(allData.map(item => {
-                    const splitTime = item.birthdate.split("T");
-                    const splitDate = splitTime[0].split("-")
-                    const monthIndex = parseInt(splitDate[1]) -1;
-                    splitDate[1] = months[monthIndex];
-                    item.birthdate = `${splitDate[1]} ${splitDate[2]}`;
-                    return item
-                }))
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+        if(isAuthenticated){
+            loadBirthdays();
+        }
     }, [isAuthenticated]); // Empty dependency array means this only runs once on mount
 
 
+    const boughtItem= (e) => {
+        const clicked = document.getElementById(e);
+        clicked.innerHTML = "✅"
+    }
 
-
+    const removeEvent = (e) => {
+        const clicked = document.getElementById(e);
+        clicked.parentNode.removeChild(clicked);
+    }
     if (isAuthenticated) {
-        checkUserData();
+
         return (
             <>
-
+                <StyledHeader>YOUR UPCOMING GIFTS!</StyledHeader>
                 <StyledDiv>
-                    <h1>Upcoming Gifts</h1>
-                    <h2>Test header with user: {loggedInUser.username}</h2>
-                    <ul>
+                    <StyledUL>
                         {birthdayData.map((event, index) => (
-                            <StyledLI key={index}>🎁  {event.name} - {event.birthdate}</StyledLI>
+                            <StyledLI id={index}>
+                             {event.birthdate} for {event.name}
+                             <StyledIcon id={event.name} onClick ={ (e) => boughtItem(event.name)}>Bought</StyledIcon>
+                            <span onClick={ (e) => removeEvent(index)}>🗑️</span>
+                            </StyledLI>
                         ))}
-                    </ul>
+                    </StyledUL>
                     <StyledButton id='add-event-button' onClick={() => setAddPressed(1)}>Add Event</StyledButton>
                 </StyledDiv>
                 {addPressed === 0 ?
@@ -193,7 +242,7 @@ function Homepage() {
                     :
 
                     <NewGift id='add-event'>
-                        <StyledHeader> Fill Out Below To Track A New Gift </StyledHeader>
+                        <StyledTitle> Fill Out Below To Track A New Gift </StyledTitle>
                         <InnerDiv>
                             <label htmlFor="birthday_name">Name of Recipient:</label>
                             <input type="text" id="birthday_name" /> <br />

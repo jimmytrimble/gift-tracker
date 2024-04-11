@@ -9,7 +9,7 @@ import styled from 'styled-components';
 
 
  const Nav = styled.nav`
-    background-color: #BF4F74;
+    background-color: #96a6ef;
     color: white;
     display: flex;
     justify-content: space-between;
