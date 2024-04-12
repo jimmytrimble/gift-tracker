@@ -5,11 +5,7 @@ import LoginForm from './LoginForm';
 import { useAuth0 } from '@auth0/auth0-react';
 import Calendar from "./Calendar";
 import { UserLog } from '../UserLog';
-//import  background2 from './images/background2';
 
-// export const RecommendItem = styled.div`
-// background: url(${background2?.src});
-// `;
 
 const StyledDiv = styled.div`
     display: flex;
@@ -183,7 +179,14 @@ function Homepage() {
         fetch('http://localhost:8081/birthday')
         .then(response => response.json())
         .then(data => {
-            let sortedBirthdates = data.sort((p1, p2) => (Date.parse(p1.birthdate) - Date.parse(p2.birthdate)));
+            const currentDate = new Date();
+            let userBirthdates = data.filter(item => item.user_id === loggedInUser.id);
+            let sortedBirthdates = userBirthdates.sort((p1, p2) => {
+            // if(Date.parse(p1.birthdate) < currentDate || Date.parse(p2.birthdate) < currentDate){
+            //     return -1;
+            // }
+                return (Date.parse(p1.birthdate) - Date.parse(p2.birthdate))
+            });
             setBirthdayData(sortedBirthdates.map(item => {
                 const splitTime = item.birthdate.split("T");
                 const splitDate = splitTime[0].split("-");
@@ -198,38 +201,48 @@ function Homepage() {
         });
     }
 
-    // useEffect to fetch data on component mount
+
     useEffect(() => {
         if(isAuthenticated){
             loadBirthdays();
         }
-    }, [isAuthenticated]); // Empty dependency array means this only runs once on mount
+    }, [loggedInUser]);
 
 
-    const boughtItem = (e) => {
+    const boughtItem = (eventid, e) => {
         const clicked = document.getElementById(e);
         console.log("clicked", e)
+        console.log("id", eventid)
         setIsBought(!isBought);
 
-
-        fetch(`http://localhost:8081/update/${e}`, {
+        fetch(`http://localhost:8081/update/${eventid}`, {
             method: 'PATCH',
-            body: JSON.stringify({bought : !isBought
-             })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({bought : !isBought})
         })
         clicked.innerHTML = "✅"
     }
 
-    const removeEvent = (e) => {
-        const clicked = document.getElementById(e);
-        // fetch delete
-        // fetch(`http://localhost:8081/remove/event/${e}`, {
-        //     method: 'DELETE'
-        // })
-        clicked.parentNode.removeChild(clicked);
+    const removeEvent = (eventid, eventName) => {
+        const clicked = document.getElementById(eventid);
+        fetch(`http://localhost:8081/remove/event/${eventName}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (res.ok) clicked.parentNode.removeChild(clicked);
+                else console.error(`Failed to remove event ${eventid}`);
+            })
+            .catch(error => {
+                console.error('Error removing event:', error);
+            });
     }
-    if (isAuthenticated) {
 
+    if (Object.keys(loggedInUser).length !== 0) {
         return (
             <>
                 <StyledHeader>YOUR UPCOMING GIFTS!</StyledHeader>
@@ -238,8 +251,11 @@ function Homepage() {
                         {birthdayData.map((event, index) => (
                             <StyledLI id={index}>
                              {event.birthdate} for {event.name}
-                             <StyledIcon id={event.name} onClick ={ (e) => boughtItem(event.name)}>Completed</StyledIcon>
-                            <span onClick={ (e) => removeEvent(index)}>🗑️</span>
+                             {event.bought ?
+                                <StyledIcon id={event.name} onClick ={ () => boughtItem(event.id, event.name)}>✅</StyledIcon>
+                                :<StyledIcon id={event.name} onClick ={ () => boughtItem(event.id, event.name)}>Done?</StyledIcon>}
+
+                            <span onClick={ () => removeEvent(index, event.name)}>🗑️</span>
                             </StyledLI>
                         ))}
                     </StyledUL>

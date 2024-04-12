@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const axios = require('axios');
 const port = 8081;
-const oauthToken = `v^1.1#i^1#r^0#p^1#f^0#I^3#t^H4sIAAAAAAAAAOVYf2wTVRxv1226wDYjiGQB0x0QFWn77nrtteda0q5srW5rWbsBM0Le3b1bj7V35e7VUVBcFkMI/CGJzl8oIfyhxggEDAKBoJlBNGqG+IM/hIAEiEYTCcEJEhPv2jG6SQBZE5fYf5r7vu/7vs/n877f9753oK+yav768Po/qs33lG3rA31lZjM5BVRVVjxWYymrqzCBIgfztr65feX9lp8aNJhOZdh2pGUUWUPW1emUrLF5o4/IqjKrQE3SWBmmkcZino0HWltYyg7YjKpghVdShDUS8hFuimE8AuOmXIBjOM6jW+XrMROKj0AiDV3Q7WGcjJP2AqCPa1oWRWQNQxn7CApQtA3QNpJMUIClaNbJ2Ckn3UVYO5GqSYqsu9gB4c/DZfNz1SKst4YKNQ2pWA9C+COBpng0EAktaks0OIpi+Ud0iGOIs9rYp0ZFQNZOmMqiWy+j5b3ZeJbnkaYRDn9hhbFB2cB1MHcBvyC1VyABKTIcolwCR5dGyiZFTUN8axyGRRJsYt6VRTKWcO52iupqcCsRj0ee2vQQkZDV+FuchSlJlJDqIxYFA8sCsRjhj2OUSSK51RaUVJwUYM4Waw/ZvJyXdnpEAG1OKIhOl8s9slAh2ojM41ZqVGRBMkTTrG0KDiIdNRqvDVmkje4UlaNqQMQGomI/alRD0GVsamEXszgpG/uK0roQ1vzj7XdgdDbGqsRlMRqNMH4gL5GPgJmMJBDjB/O5OJI+qzUfkcQ4wzocvb299l6nXVG7HRQApGNpa0ucT6I0JHRfo9YL/tLtJ9ikPBUe6TM1icW5jI5ltZ6rOgC5m/DTXqde6SO6j4XlH2/9h6GIs2NsRZSqQhAFvCLJMR5AiwwQYCkqxD+SpA4DB+L01ExDtQfhTAryyMbreZZNI1USWKdLpPRsRTbB7RVttFcUbZxLcNtIESGAEMfxXs//qVDuNNXjiFcRLkmulyzPE5yrIwjAmjBsDbUFlyYoJaLI3sWd0eQS9ES6Q8BBGrVjMYxjtO9Oq+Gm5BtTkq5MQl+/FAIYtV46EcKKhpEwIXpxXsmgmJKS+Nzk2mCnKsSginNxlErphgmRDGQykdKc1SWj9y+PibvjXbo76j+6n27KSjNSdnKxMuZregCYkezGDWTnlbTDqHUF6u2HYV6RRz0h3pLeuU4q1jrJAltJKLSc9jxdu/YMb1eRpmRVvdu2R40OLKH0IFm/z7CqpFJI7SQnXM/pdBZDLoUmW2GXIMElOMkuW5IhKY+bAQwzIV58/ipdMdmOpFIcxeXNd9lWO8a+5PtN+R/Zbx4E/ebDZWYzaADzyDmgvtLSUW6ZWqdJGNklKNo1qVvW311VZO9BuQyU1LJppkvbB8KNdYuir8xfm8gd23LUNLXoG8O2p8HM0a8MVRZyStEnBzDrxkgFWftgNUUDmiSNFtLJdIE5N0bLyRnl088dXDC0uOm9P03DjMs1e/iFyt2Xh0H1qJPZXGEq7zebVl7c4Q5Frn0R9b27YOEMd9L98asPcw+9LLy97wFw5JNh/6HH+0Ov//b50LRVLbEPL7gfOdMMBltg777Z0WMH3zofOzqd2/7+wg0b93R3np71xvI1nz1aO2X273vMwaHw5U0nwKdXO7vO7T9l2f/cj/dZPdQuZeeltmMz8fGTNa3gA0uNe8nyKxdiA/LgCRfz0snTc5tT6747cLr3nc3ssiPz988r++tNuPujwWu/7hw8/1Tw/P2HX6zZdLa9mupOD6z9uW7g1I4tRz1dF+u/pJv6Nsi13/ywqrFq1ZXauq/2doR/WXPIdKm5YV2/9uS9e63P99RvfG0rf43Z+Gz9gtyuQ98eOH4GfX1169nvhwp7+Te9uQbD/REAAA==`;
+const oauthToken = `v^1.1#i^1#p^1#I^3#f^0#r^0#t^H4sIAAAAAAAAAOVYfWwTZRhf22042RjKBnNq7I4vAXt9767Xrsda0m3AKmwrazcYZCHXu/fYbde74+7tRiXEMZQgQRK+FIWQSYgaFIkmBIiRiMG4+BUIiV9/EIwSMP4Fc+EP48fdtYxuEkDWxCX2n+ae93mf9/f7vc/zfoG+wqL5Wxu23iyxTbIP9IE+u81GTAZFhQULpjjslQV5IMvBNtA3qy+/33GtRmcTksq0QF1VZB06NyQkWWcsYwBLajKjsLqoMzKbgDqDOCYaalzOkDhgVE1BCqdImDNcH8AIL8X5SJrmOU6ggJ8yrPKtmDElgPnirJcTPALL0X7KJxBGu64nYVjWESujAEYC0uMCHhdBxggvQxEM8OI+UL0ac7ZBTRcV2XDBARa04DJWXy0L692hsroONWQEwYLh0JJocyhcv7gpVuPOihXM6BBFLErqo7/qFB4621gpCe8+jG55M9Ekx0Fdx9zB9AijgzKhW2AeAL4lddzj4YBA+TkfRQCaiOdEyiWKlmDR3XGYFpF3CZYrA2UkotS9FDXUiHdBDmW+mowQ4Xqn+bciyUqiIEItgC2uDbWHIhEsGEVQ7YRyo6tW1FAnz6ZckZZ6lz/u91DVAmBdFMsLFE17MwOlo2VkHjNSnSLzoima7mxSUC00UMOx2pBZ2hhOzXKzFhKQiSjbr3pEQ3q1OanpWUyiTtmcV5gwhHBan/eegZHeCGliPIngSISxDZZEAYxVVZHHxjZauZhJnw16AOtESGXc7t7eXryXwhVtnZsEgHCvalwe5TphgsUMX7PW0/7ivTu4RIsKB42eusiglGpg2WDkqgFAXocFPX7KS9IZ3UfDCo61/sOQxdk9uiJyVSGUH/p4sprkeIr2chydiwoJZpLUbeKAcSM1E6zWDZEqsRx0cUaeJRNQE3mGogXSyFbo4r1+weXxC4IrTvNeFyFACCCMxzl/9f+pUO431aOQ0yDKSa7nLM9jcbq1FoDnGtjG+qbaVTFSCSuyf0Vbc+dK+GyilUe1HtiChAYU8QTutxruSL5OEg1lYsb4uRDArPXcidCg6Ajy46IX5RQVRhRJ5FITa4IpjY+wGkpFoSQZhnGRDKlqODdrdc7o/ctl4sF4526P+o/2pzuy0s2UnViszP66EYBVRdzcgXBOSbjNWldY4/hhmtdaqMfFWzROrhOKtUEyzVbk00dO3KKL6z0crkFdSWrGaRtvNk9gMaUbysZ+hjRFkqDWRoy7nhOJJGLjEpxohZ2DBBfZCbbZEj6C9FN+j3d8yxFnbaVrJ9qSlIulOH/pAx6r3aMv+cE860f02z4B/bYzdpsN1IDZxExQVehozXcUV+oigrjICrgurpONu6sG8W6YUllRs0/Lu3F4X0Nd5eLmV+ZvjKXOH/gsrzjrjWGgA1SMvDIUOYjJWU8O4InbLQVE6YwS0gM8BEl4jXusdzWYebs1n5ieX/bO9fId7aXrf93zzKHdRxxTz3THpi0DJSNONltBXn6/La98S7kwd+nwrJbN+y/3bD4R+evPr4bKX7reAU7t/GX7CW/v/vhvXT2s7ePfLz3uKFvVM2te5fnImkH1zdKuH+jXXhiq+3Ht3mlXh4mSSQ0nN104Wnyg49rzx+ckhEW+Qv+Cee2nzl7+eukfH875ftHrh986X7VpsO3l1o2VwxUz9lWd3X9u0qdPV+zrGfj52Iu7dq68Eln43ekjzi/B9PUVW3ls2bHdHz317czhhde7Lr/PbMfJmpNV0c6rc78prfpcGDx81d5x8aH4F7ZDp7ft+OCG79Gh9q5zcteamyunHLFfAiuKW8sOPjK4a/eegz+9XYTVzJ9z9sp7x+HFN6Y+tkM6Gikaevjd2XufHNjy6oWy9Fz+DR1vYun9EQAA`
 const knex = require("knex")(require("./knexfile.js")["development"]);
 
 app.use(cors(), express.json());
@@ -98,7 +98,7 @@ app.get('/wishlist/:id', (req, res) => {
 
     const { id } = req.params;
     knex('wishlist')
-      .select('users.name', 'wishlist.gifts', 'wishlist.image', 'wishlist.bought')
+      .select('users.name', 'wishlist.gifts', 'wishlist.image')
       .join('users', 'wishlist.user_id', '=', 'users.id')
       .where('users.id', id)
       .then(data => res.status(200).json(data))
@@ -213,6 +213,21 @@ app.post('/users/new', (req, res) => {
       });
 })
 
+app.post('/update/wishlist/:user_id', (req, res) => {
+  const { gifts, image } = req.body;
+  const { user_id } = req.params
+  knex('wishlist')
+    // .where('user_id', user_id)
+    .insert({ gifts, image, user_id})
+    .then(response => {
+      res.status(201).send(`Item ${gifts} added to your wishlist`)
+  })
+    .catch(error => {
+      res.status(500).send(`Unable to add ${gifts} to your wishlist.`);
+    })
+})
+
+
 app.post('/birthday/new', (req, res) => {
   const { name, birthdate, relationship, user_id } = req.body;
   const interests = '';
@@ -230,6 +245,8 @@ app.post('/birthday/new', (req, res) => {
       res.status(500).send(`Unable to create event ${name}.`);
     });
 })
+
+
 
 app.post('/update/search', (req, res) => {
   const query = req.query.query || 'iphone';
@@ -308,27 +325,56 @@ app.patch('/users/update/:id', (req, res) => {
     })
   })
 
-app.patch('/update/:name', (req, res) => {
-  const { bought } = req.body;
-  const { name } = req.params
+app.patch('/update/:id', (req, res) => {
+  const { bought, birthdate } = req.body;
+  const { id } = req.params
   let updates = {};
   if (bought) updates.bought = bought;
+  if (birthdate) updates.birthdate = birthdate;
   knex('birthday')
-    // .join('users', 'wishlist.user_id', '=', 'users.id')
     .first()
-    .where('name', name)
+    .where('id', id)
     .update(updates)
     .then(response => {
-      res.status(201).send(`Bought = ${updates.bought}`)
+      res.status(201).send(`Bought/birthdate updated.`)
   })
+})
+
+app.patch('/update/friends/:id', (req, res) => {
+  const { friendToAdd } = req.body;
+  const { id } = req.params
+  knex('users')
+        .select('friendslist')
+        .where('id', id)
+        .first()
+        .then(user => {
+            if (!user) {
+                return res.status(404).send(`User with ID ${id} not found.`);
+            }
+            let updatedFriendsList = `${user.friendslist}${friendToAdd},`;
+            knex('users')
+                .where('id', id)
+                .update({ friendslist: updatedFriendsList })
+                .then(response => {
+                    res.status(200).send(`Added ${friendToAdd} to friendslist.`);
+                })
+                .catch(error => {
+                    console.error('Error updating friendslist:', error);
+                    res.status(500).send('Internal Server Error');
+                });
+        })
+        .catch(error => {
+            console.error('Error retrieving user:', error);
+            res.status(500).send('Internal Server Error');
+        });
 })
 
 // --- DELETE ---
 
-app.delete('/users/remove/:id', (req, res) => {
+app.delete('/users/remove/:name', (req, res) => {
   const { id } = req.params;
-  knex('users')
-    .where('id', id)
+  knex('birthday')
+    .where('name', name)
     .del()
     .then(deleted => {
       if (deleted) res.status(202).send(`User ${id} deleted.`)
@@ -343,8 +389,8 @@ app.delete('/remove/event/:name', (req, res) => {
     .first()
     .del()
     .then(deleted => {
-      if (deleted) res.status(202).send(`Event ${id} deleted.`)
-      else res.status(404).send(`Event ${id} not found.`)
+      if (deleted) res.status(202).send(`Event ${name} deleted.`)
+      else res.status(404).send(`Event ${name} not found.`)
     })
 })
 

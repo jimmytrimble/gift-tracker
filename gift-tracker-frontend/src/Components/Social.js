@@ -18,6 +18,11 @@ const StyledDiv = styled.div`
     left-margin: 40px
 `
 
+const StyledImage = styled.img`
+  width: 200px;
+  height: 200px;
+`
+
 const ColorDiv = styled.div`
   display: flex;
     flex-flow: column;
@@ -27,7 +32,8 @@ const ColorDiv = styled.div`
     align-items: center;
     background-color: #c0d3c2;
     width: 750px;
-    padding: 25px;
+    padding: 15px;
+    border: 4px solid white;
 `
 const StyledButton = styled.button`
   display: flex;
@@ -56,30 +62,51 @@ const StyledHeader = styled.h2`
 
 `
 
+const StyledP = styled.p`
+display: flex;
+justify-content: center;
+justify-items: center;
+align-content:center;
+align-items: center;
+color:#1734b6;
+font-weight: bold;
+`
+const StyledWishlist = styled.div`
+  display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content:center;
+    justify-items:center;
+    align-content:center;
+    align-items: center;
+    padding: 10px;
+    gap: 15px;
+    margin: 20px;
+    left-margin: 40px
+    width: 90%;
+`
 function Social() {
   const { isAuthenticated } = useAuth0();
   const { loggedInUser } = useContext(UserLog);
   const [friends, setFriends] = useState([]);
-  const [userList, setUserList] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [foundFriend, setFoundFriend] = useState();
   const [didSearch, setDidSearch] = useState(0);
+  const [friendWish, setFriendWish] = useState([]);
 
   useEffect(() => {
-    console.log("isAuthenticated: ", isAuthenticated)
 
     if (isAuthenticated) {
-      console.log(loggedInUser)
-      let testUserList = loggedInUser.friendslist.split(",")
+      let userList = loggedInUser.friendslist.split(",")
 
       //fetch each friends profile
-      testUserList.map(item => {
+      userList = userList.filter(item => Number.isInteger(parseInt(item)))
+      userList.map(item => {
         fetch(`http://localhost:8081/users/${item}`)
           .then(response => response.json())
           //set friends state to the pulled user's profile data
           .then(data => {
-            console.log("second fetch data", data[0])
-            const exists = friends.find(friend => friend.id === data[0].id)
+            const exists = friends.find(friend => friend.id === data.id)
             if (!exists)
               setFriends(prevFriends => [...prevFriends, data[0]])
           })
@@ -89,18 +116,43 @@ function Social() {
 
   const findFriend = () => {
     const friend = document.getElementById("social-search").value;
-    console.log("friend", friend)
     fetch("http://localhost:8081/users")
       .then(response => response.json())
       .then(data => {
         setAllUsers(data);
-        console.log("data", data)
         return allUsers;
       })
       .then(all => {
         setFoundFriend(all.filter( item => item.username === friend))
-        console.log("foundfreind", foundFriend)
         setDidSearch(1);
+      })
+  }
+
+  const showWishlist = (userID) =>{
+    fetch(`http://localhost:8081/wishlist/${userID}`)
+    .then(response => response.json())
+    .then(data => setFriendWish(prevWish => (
+      {
+        ...prevWish,
+        [userID]: data
+      }
+    )))
+
+  }
+
+
+  const addFriend = (userID) => {
+    const status = document.getElementById("add-friend-button");
+    fetch(`http://localhost:8081/update/friends/${loggedInUser.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({friendToAdd: userID})
+    })
+      .then(() => {
+        status.innerHTML = "Friend Added!";
+        document.location.reload();
       })
   }
 
@@ -109,15 +161,25 @@ function Social() {
       <>
         <StyledDiv>
           <StyledHeader>{loggedInUser.name}'s Friend List</StyledHeader>
-          {console.log("friends in redner: ", friends)}
           <StyledDiv>
             {friends.map(item => (
               <ColorDiv key={item.id}>
-                <img alt="friend" src={item.image} />
-                <p>{item.name}</p>
-                <p>Username: {item.username}</p>
-                <p>Interests: {item.interests}</p>
-                <p>Bio: {item.bio}</p>
+                <StyledImage alt="friend" src={item.image} />
+                <StyledP>{item.name}</StyledP>
+              <StyledP>Username: {item.username}</StyledP>
+                <StyledP>Interests: {item.interests}</StyledP>
+                <StyledP>Bio: {item.bio}</StyledP>
+                <StyledButton onClick={ () => showWishlist(item.id)}>Show Their Wishlist</StyledButton>
+                <StyledWishlist>
+                  {friendWish[item.id] && friendWish[item.id].map(eachItem => {
+                    return(
+                    <StyledDiv>
+                    <StyledImage className="wishlist-image" src={eachItem.image} alt='gift' />
+                    <StyledHeader>{eachItem.gifts}</StyledHeader>
+                    </StyledDiv>
+                    )
+                  })}
+                </StyledWishlist>
               </ColorDiv>
             ))}
           </StyledDiv>
@@ -130,12 +192,12 @@ function Social() {
         {didSearch > 0 ?
           foundFriend.map(item => (
             <ColorDiv>
-                <img alt="friend" src={item.image} />
-                <p>{item.name}</p>
-                <p>Username: {item.username}</p>
-                <p>Interests: {item.interests}</p>
-                <p>Bio: {item.bio}</p>
-                <StyledButton>Add Friend</StyledButton>
+                <StyledImage alt='🎁' src={item.image} />
+                <StyledP>{item.name}</StyledP>
+                <StyledP>Username: {item.username}</StyledP>
+                <StyledP>Interests: {item.interests}</StyledP>
+                <StyledP>Bio: {item.bio}</StyledP>
+                <StyledButton id="add-friend-button" onClick = {() => addFriend(item.id)}>Add Friend</StyledButton>
             </ColorDiv>
           ))
         :

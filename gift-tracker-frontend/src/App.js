@@ -16,11 +16,11 @@ import styled from "styled-components";
 const StyledBackground = styled.div`
 
   background-image: url("https://static.vecteezy.com/system/resources/previews/006/051/624/original/organic-abstract-pastel-shapes-background-minimalist-aesthetic-free-vector.jpg");
-  height: 2000px;
+  height: 3000px;
 `
 
 function App() {
-  const [isUserSaved, setIsUserSaved] = useState(false);
+
   const [loggedInUser, setLoggedInUser] = useState({});
   const { user, isAuthenticated } = useAuth0();
 
@@ -31,8 +31,6 @@ function App() {
       .then(data => {
         if (isAuthenticated) {
           let loggedUser = data.filter(databaseUser => databaseUser.username === user.nickname)
-          // console.log("logged user is: ", loggedUser[0])
-          // console.log("Users birthday is: ", loggedUser[0].birthdate)
           setLoggedInUser(loggedUser[0]);
 
         }
@@ -47,7 +45,8 @@ function App() {
       <NavMenu />
       <LoginButton />
 
-      <UserLog.Provider value={{ isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser }}>
+      {/*  isUserSaved, setIsUserSaved,  */}
+      <UserLog.Provider value={{ loggedInUser, setLoggedInUser }}>
 
         <Routes>
           <Route path="/" element={< Homepage />} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import {useEffect, useState, useContext} from 'react';
+import { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { UserLog } from '../UserLog';
 const BasicDiv = styled.div`
@@ -22,7 +22,7 @@ const StyledDiv = styled.div`
     gap: 15px;
     margin: 20px;
     left-margin: 40px
-    width: 90%;
+    width: 300px;
     background-color: #c0d3c2;
 `
 const StyledSearchResults = styled.div`
@@ -34,6 +34,20 @@ const StyledSearchResults = styled.div`
     align-content:center;
     align-items: center;
     width: 80%;
+`
+
+const StyledItem = styled.div`
+    display: flex;
+    flex-flow: column;
+    justify-content:center;
+    justify-items:center;
+    align-content:center;
+    align-items: center;
+    padding: 10px;
+    gap: 15px;
+    margin: 20px;
+    width: 300px;
+    background-color: #c0d3c2;
 `
 const StyledP = styled.p`
   display: flex;
@@ -131,38 +145,51 @@ function Wishlist() {
 
   const getLink = (gift_title) => {
     fetch(`http://localhost:8081/search?query=${gift_title}`)
-    .then(response => response.json())
-    .then(data => {
-      setFoundItem(data);
-      console.log("found item", foundItem)
-      setLink(`http://amazon.com/s?k=${gift_title}`)
-      setDidSearch(1);
+      .then(response => response.json())
+      .then(data => {
+        setFoundItem(data);
+        console.log("found item", foundItem)
+        setLink(`http://amazon.com/s?k=${gift_title}`)
+        setDidSearch(1);
+      })
+  }
+
+  const addWishlist = (gift) => {
+    const status = document.getElementById("add-wishlist")
+    gift.image = gift.image || gift.imageUrl;
+    fetch(`http://localhost:8081/update/wishlist/${loggedInUser.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ gifts: gift.title, image: gift.image })
     })
+      .then(() => {
+        status.innerHTML = "Gift Added to Wishlist!";
+        document.location.reload();
+      })
   }
 
-  const addWishlist = () => {
-
-  }
-
-  useEffect (() => {
-    if(isAuthenticated){
-    fetch('http://localhost:8081/admin/gifts')
-    .then( response => response.json())
-    .then(data => {
-      console.log("all Gifts", data)
-      setAllGifts(data.map(item => item))
-        fetch(`http://localhost:8081/wishlist/${loggedInUser.id}`)
-        .then( response => response.json())
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetch('http://localhost:8081/admin/gifts')
+        .then(response => response.json())
         .then(data => {
-          console.log("user wishlist", data)
-          setWishlist(data)
-          return wishlist})
-        // .then(setWishlist(wishlist.filter(item => allGifts.map( item => item.title.toLowerCase()).includes(item.gifts.toLowerCase())
-        // )))
+          console.log("all Gifts", data)
+          setAllGifts(data.map(item => item))
+          fetch(`http://localhost:8081/wishlist/${loggedInUser.id}`)
+            .then(response => response.json())
+            .then(data => {
+              console.log("user wishlist", data)
+              setWishlist(data)
+              return wishlist
+            })
+          // .then(setWishlist(wishlist.filter(item => allGifts.map( item => item.title.toLowerCase()).includes(item.gifts.toLowerCase())
+          // )))
 
         })
-      }
-  },[loggedInUser])
+    }
+  }, [loggedInUser])
 
   const findGift = (e) => {
 
@@ -172,68 +199,73 @@ function Wishlist() {
     ))
   }
 
-
-  return (
-    <>
-    <StyledHeader>{loggedInUser.name}'s Wishlist:</StyledHeader>
-    <StyledWishlist>
-    {wishlist.map(item => {
-      return(
-      <StyledDiv>
-      <StyledImage className="wishlist-image" src={item.image} alt='gift' />
-      <StyledHeader>{item.gifts}</StyledHeader>
-      </StyledDiv>
-      )
-    })}
-    </StyledWishlist>
+  if (Object.keys(loggedInUser).length !== 0) {
+    return (
+      <>
+        <StyledHeader>{loggedInUser.name}'s Wishlist:</StyledHeader>
+        <StyledWishlist>
+          {wishlist.map(item => {
+            return (
+              <StyledDiv>
+                <StyledImage className="wishlist-image" src={item.image} alt='gift' />
+                <StyledHeader>{item.gifts}</StyledHeader>
+              </StyledDiv>
+            )
+          })}
+        </StyledWishlist>
         <BasicDiv>
-           <StyledForm>
+          <StyledForm>
             <input type="text" id="search-bar" onInput={(e) => {
               findGift(e.target.value)
               setSearchItem(e.target.value)
-                }} label="Search an Item" />
+            }} label="Search an Item" />
           </StyledForm>
           <StyledHeader id="add-wishlist">Search a Gift to Add to Your Wishlist</StyledHeader>
         </BasicDiv>
 
         <div id="item-container">
-    {searchQuery && searchQuery.length > 0 ? (
-        searchResults && searchResults.length > 0 ? (
-          searchResults.map((item) => (
-            <StyledDiv className = 'single-gift' >
-              <img className="wishlist-search" src={item.image} alt='gift' width="250" />
-              <p>{item.title}</p>
-              <StyledButton id="add-wishlist">Add To Your Wishlist</StyledButton>
-           </StyledDiv>
-          ))
-        ) : (
-          <StyledDiv>
-          <StyledP>No results in our database, click SEARCH to add to our database</StyledP>
-          <StyledButton onClick={() => getLink(searchItem)}>Search!</StyledButton>
-         {didSearch > 0 ?
-         <StyledSearchResults>
-          {foundItem.map(item => (
-            <StyledDiv>
-            <h2>{item.title}</h2>
-            <img src={item.imageUrl} alt="founditem"/>
-            <a href={item.ebayUrl}>Click to Buy from EBAY</a>
-            <a href={link}>Click to Buy from AMAZON</a>
-            <StyledButton onClick={ () => addWishlist} id="add-wishlist">Add To Your Wishlist</StyledButton>
-            </StyledDiv>
-          )) }
-          </StyledSearchResults>
-           :
-          <></>}
+          {searchQuery && searchQuery.length > 0 ? (
+            searchResults && searchResults.length > 0 ? (
+              searchResults.map((item) => (
+                <StyledDiv className='single-gift' >
+                  <img className="wishlist-search" src={item.image} alt='gift' width="250" />
+                  <p>{item.title}</p>
+                  <StyledButton id="add-wishlist" onClick={() => addWishlist(item)}>Add To Your Wishlist</StyledButton>
+                </StyledDiv>
+              ))
+            ) : (
+              <StyledDiv>
+                <StyledP>No results in our database, click SEARCH </StyledP>
+                <StyledButton onClick={() => getLink(searchItem)}>Search!</StyledButton>
+                {didSearch > 0 ?
+                  <StyledSearchResults>
+                    {foundItem.map(item => (
+                      <StyledItem>
+                        <h2>{item.title}</h2>
+                        <img src={item.imageUrl} alt="founditem" />
+                        <a href={item.ebayUrl} target="_blank">Click to Buy from EBAY</a>
+                        <a href={link} target="_blank">Click to Buy from AMAZON</a>
+                        <StyledButton onClick={() => addWishlist(item)} id="add-wishlist">Add To Your Wishlist</StyledButton>
+                      </StyledItem>
+                    ))}
+                  </StyledSearchResults>
+                  :
+                  <></>}
 
-          </StyledDiv>
-        )
-      ) : (
-        <StyledDiv>
-        </StyledDiv>
-        )}
-    </div>
-    </>
-  )
+              </StyledDiv>
+            )
+          ) : (
+            <StyledDiv>
+            </StyledDiv>
+          )}
+        </div>
+      </>
+    )
+  } else {
+    return (
+      <h2>No user logged in</h2>
+    )
+  }
 }
 
 export default Wishlist;

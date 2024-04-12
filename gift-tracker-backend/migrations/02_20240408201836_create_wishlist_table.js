@@ -6,7 +6,6 @@ exports.up = function(knex) {
   return knex.schema.createTable('wishlist', table => {
     table.increments('id')
     table.string('gifts')
-    table.boolean('bought')
     table.string('image')
     table.integer('user_id')
     table.foreign('user_id').references('users.id')
