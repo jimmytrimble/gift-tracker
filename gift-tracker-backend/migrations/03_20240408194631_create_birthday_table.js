@@ -12,6 +12,7 @@ exports.up = function(knex) {
     table.integer("priority")
     table.string("gift_ideas")
     table.string("notes")
+    table.boolean("bought")
     table.integer("user_id")
     table.foreign('user_id').references('users.id')
     table.integer("wishlist_id")

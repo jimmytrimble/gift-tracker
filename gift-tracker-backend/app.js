@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const axios = require('axios');
 const port = 8081;
+const oauthToken = `v^1.1#i^1#p^1#I^3#f^0#r^0#t^H4sIAAAAAAAAAOVYfWwTZRhf22042RjKBnNq7I4vAXt9767Xrsda0m3AKmwrazcYZCHXu/fYbde74+7tRiXEMZQgQRK+FIWQSYgaFIkmBIiRiMG4+BUIiV9/EIwSMP4Fc+EP48fdtYxuEkDWxCX2n+ae93mf9/f7vc/zfoG+wqL5Wxu23iyxTbIP9IE+u81GTAZFhQULpjjslQV5IMvBNtA3qy+/33GtRmcTksq0QF1VZB06NyQkWWcsYwBLajKjsLqoMzKbgDqDOCYaalzOkDhgVE1BCqdImDNcH8AIL8X5SJrmOU6ggJ8yrPKtmDElgPnirJcTPALL0X7KJxBGu64nYVjWESujAEYC0uMCHhdBxggvQxEM8OI+UL0ac7ZBTRcV2XDBARa04DJWXy0L692hsroONWQEwYLh0JJocyhcv7gpVuPOihXM6BBFLErqo7/qFB4621gpCe8+jG55M9Ekx0Fdx9zB9AijgzKhW2AeAL4lddzj4YBA+TkfRQCaiOdEyiWKlmDR3XGYFpF3CZYrA2UkotS9FDXUiHdBDmW+mowQ4Xqn+bciyUqiIEItgC2uDbWHIhEsGEVQ7YRyo6tW1FAnz6ZckZZ6lz/u91DVAmBdFMsLFE17MwOlo2VkHjNSnSLzoima7mxSUC00UMOx2pBZ2hhOzXKzFhKQiSjbr3pEQ3q1OanpWUyiTtmcV5gwhHBan/eegZHeCGliPIngSISxDZZEAYxVVZHHxjZauZhJnw16AOtESGXc7t7eXryXwhVtnZsEgHCvalwe5TphgsUMX7PW0/7ivTu4RIsKB42eusiglGpg2WDkqgFAXocFPX7KS9IZ3UfDCo61/sOQxdk9uiJyVSGUH/p4sprkeIr2chydiwoJZpLUbeKAcSM1E6zWDZEqsRx0cUaeJRNQE3mGogXSyFbo4r1+weXxC4IrTvNeFyFACCCMxzl/9f+pUO431aOQ0yDKSa7nLM9jcbq1FoDnGtjG+qbaVTFSCSuyf0Vbc+dK+GyilUe1HtiChAYU8QTutxruSL5OEg1lYsb4uRDArPXcidCg6Ajy46IX5RQVRhRJ5FITa4IpjY+wGkpFoSQZhnGRDKlqODdrdc7o/ctl4sF4526P+o/2pzuy0s2UnViszP66EYBVRdzcgXBOSbjNWldY4/hhmtdaqMfFWzROrhOKtUEyzVbk00dO3KKL6z0crkFdSWrGaRtvNk9gMaUbysZ+hjRFkqDWRoy7nhOJJGLjEpxohZ2DBBfZCbbZEj6C9FN+j3d8yxFnbaVrJ9qSlIulOH/pAx6r3aMv+cE860f02z4B/bYzdpsN1IDZxExQVehozXcUV+oigrjICrgurpONu6sG8W6YUllRs0/Lu3F4X0Nd5eLmV+ZvjKXOH/gsrzjrjWGgA1SMvDIUOYjJWU8O4InbLQVE6YwS0gM8BEl4jXusdzWYebs1n5ieX/bO9fId7aXrf93zzKHdRxxTz3THpi0DJSNONltBXn6/La98S7kwd+nwrJbN+y/3bD4R+evPr4bKX7reAU7t/GX7CW/v/vhvXT2s7ePfLz3uKFvVM2te5fnImkH1zdKuH+jXXhiq+3Ht3mlXh4mSSQ0nN104Wnyg49rzx+ckhEW+Qv+Cee2nzl7+eukfH875ftHrh986X7VpsO3l1o2VwxUz9lWd3X9u0qdPV+zrGfj52Iu7dq68Eln43ekjzi/B9PUVW3ls2bHdHz317czhhde7Lr/PbMfJmpNV0c6rc78prfpcGDx81d5x8aH4F7ZDp7ft+OCG79Gh9q5zcteamyunHLFfAiuKW8sOPjK4a/eegz+9XYTVzJ9z9sp7x+HFN6Y+tkM6Gikaevjd2XufHNjy6oWy9Fz+DR1vYun9EQAA`
 const knex = require("knex")(require("./knexfile.js")["development"]);
 
 app.use(cors(), express.json());
@@ -23,6 +24,13 @@ const handlePriority = (relationship) => {
     default:
       priority = 4;
   }
+}
+
+const handlePrice = (price) => {
+  if (price > 0 && price <= 25) return 1
+  else if (price > 25 && price <= 100) return 2
+  else if (price > 100) return 3
+  else return 0;
 }
 
 app.get('/', (req, res) => {
@@ -90,9 +98,8 @@ app.get('/wishlist/:id', (req, res) => {
 
     const { id } = req.params;
     knex('wishlist')
-      .select('birthday.name', 'wishlist.gifts', 'wishlist.image', 'wishlist.bought')
-      .join('birthday', 'wishlist.id', '=', 'birthday.wishlist_id')
-      .join('users', 'birthday.user_id', '=', 'users.id')
+      .select('users.name', 'wishlist.gifts', 'wishlist.image')
+      .join('users', 'wishlist.user_id', '=', 'users.id')
       .where('users.id', id)
       .then(data => res.status(200).json(data))
       .catch(err => res.status(404).send(err))
@@ -166,30 +173,28 @@ app.delete('/users/remove/:id', (req, res) => {
 })
 
 app.get('/search', (req, res) => {
-  const query = req.query.query || 'iphone';
-  const limit = req.query.limit || 10;
-
-  const oauthToken = `v^1.1#i^1#f^0#r^0#I^3#p^3#t^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`;
-  const ebayApiEndpoint = `https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`;
+  const query = req.query.query || 'drone';
+  const limit = req.query.limit || 3;
+  const ebayApiEndpoint = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`
 
   axios.get(ebayApiEndpoint, {
     headers: {
       'Authorization': `Bearer ${oauthToken}`,
-      'Content-Type': 'application/json',
-      'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US'
     }
   })
     .then(response => {
-      const itemSummaries = response.data.itemSummaries;
-      const extractedData = itemSummaries.map(item => ({
+      const items = response.data.itemSummaries;
+      const extractedData = items.map(item => ({
         title: item.title,
         imageUrl: item.image.imageUrl,
-        price: '$' + item.price.value
+        price: handlePrice(parseInt(item.price.value, 10)),
+        ebayUrl: item.itemWebUrl
       }));
-      res.status(200).json(extractedData);
+      res.status(200).send(extractedData)
     })
     .catch(error => {
-      const link = `link`;
+      console.log(error);
+      const link = `http://amazon.com/s?k=${query}`;
       res.status(500).send(`Item, ${query}, does not exist in our marketplace. Please visit Amazon to purchase: ${link}`);
     });
 });
@@ -207,6 +212,21 @@ app.post('/users/new', (req, res) => {
         res.status(500).send('Unable to create user.');
       });
 })
+
+app.post('/update/wishlist/:user_id', (req, res) => {
+  const { gifts, image } = req.body;
+  const { user_id } = req.params
+  knex('wishlist')
+    // .where('user_id', user_id)
+    .insert({ gifts, image, user_id})
+    .then(response => {
+      res.status(201).send(`Item ${gifts} added to your wishlist`)
+  })
+    .catch(error => {
+      res.status(500).send(`Unable to add ${gifts} to your wishlist.`);
+    })
+})
+
 
 app.post('/birthday/new', (req, res) => {
   const { name, birthdate, relationship, user_id } = req.body;
@@ -226,38 +246,45 @@ app.post('/birthday/new', (req, res) => {
     });
 })
 
-// app.post('/update/database', (req, res) => {
-//   const query = req.query.query || 'iphone';
-//   const limit = req.query.limit || 5;
 
-//   const oauthToken = `v^1.1#i^1#f^0#r^0#I^3#p^3#t^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`;
-//   const ebayApiEndpoint = `https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`;
 
-//   axios.get(ebayApiEndpoint, {
-//     headers: {
-//       'Authorization': `Bearer ${oauthToken}`,
-//       'Content-Type': 'application/json',
-//       'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US'
-//     }
-//   })
-//     .then(response => {
-//       const itemSummaries = response.data.itemSummaries;
-//       const extractedData = itemSummaries.map(item => ({
-//         title: item.title,
-//         image: item.image.imageUrl,
-//         price: '$' + item.price.value
-//       }));
-//       // res.status(200).json(extractedData);
-//     })
-//     knex('gift')
-//     .insert({ title, price, image })
-//     .then(response => {
-//       res.status(201).send(`Item ${title} added.`)
-//     })
-//     .catch(error => {
-//       res.status(500).send(`Unable to add item ${title}.`);
-//     });
-// });
+app.post('/update/search', (req, res) => {
+  const query = req.query.query || 'iphone';
+  const limit = req.query.limit || 5;
+  var { title, image } = req.body
+
+  const ebayApiEndpoint = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`
+
+  axios.get(ebayApiEndpoint, {
+    headers: {
+      'Authorization': `Bearer ${oauthToken}`,
+    }
+  })
+    .then(response => {
+      const itemSummaries = response.data.itemSummaries;
+      const extractedData2 = itemSummaries.map(item => ({
+        title : item.title,
+        price: handlePrice(parseInt(item.price.value, 10)),
+        link: item.itemWebUrl,
+        image: item.image.imageUrl,
+      }));
+      console.log(extractedData2)
+      let fullExtract = extractedData2[0]
+      var title = fullExtract.title
+      var image = fullExtract.image
+      var price = fullExtract.price
+      var link = fullExtract.link
+            // res.status(200).json(extractedData);
+      knex('gift')
+      .insert({title, price, link, image})
+      .then(response => {
+      res.status(201).send(`Item added.`)
+    })
+    .catch(error => {
+      res.status(500).send(`Unable to add item.`);
+    });
+  })
+});
 
 
 
@@ -296,19 +323,76 @@ app.patch('/users/update/:id', (req, res) => {
     .then(response => {
       res.status(201).send('Updated successfully.')
     })
+  })
+
+app.patch('/update/:id', (req, res) => {
+  const { bought, birthdate } = req.body;
+  const { id } = req.params
+  let updates = {};
+  if (bought) updates.bought = bought;
+  if (birthdate) updates.birthdate = birthdate;
+  knex('birthday')
+    .first()
+    .where('id', id)
+    .update(updates)
+    .then(response => {
+      res.status(201).send(`Bought/birthdate updated.`)
+  })
+})
+
+app.patch('/update/friends/:id', (req, res) => {
+  const { friendToAdd } = req.body;
+  const { id } = req.params
+  knex('users')
+        .select('friendslist')
+        .where('id', id)
+        .first()
+        .then(user => {
+            if (!user) {
+                return res.status(404).send(`User with ID ${id} not found.`);
+            }
+            let updatedFriendsList = `${user.friendslist}${friendToAdd},`;
+            knex('users')
+                .where('id', id)
+                .update({ friendslist: updatedFriendsList })
+                .then(response => {
+                    res.status(200).send(`Added ${friendToAdd} to friendslist.`);
+                })
+                .catch(error => {
+                    console.error('Error updating friendslist:', error);
+                    res.status(500).send('Internal Server Error');
+                });
+        })
+        .catch(error => {
+            console.error('Error retrieving user:', error);
+            res.status(500).send('Internal Server Error');
+        });
 })
 
 // --- DELETE ---
 
-app.delete('/users/remove/:id', (req, res) => {
+app.delete('/users/remove/:name', (req, res) => {
   const { id } = req.params;
-  knex('users')
-    .where('id', id)
+  knex('birthday')
+    .where('name', name)
     .del()
     .then(deleted => {
       if (deleted) res.status(202).send(`User ${id} deleted.`)
       else res.status(404).send(`User ${id} not found.`)
     })
 })
+
+app.delete('/remove/event/:name', (req, res) => {
+  const { name } = req.params;
+  knex('birthday')
+    .where('name', name)
+    .first()
+    .del()
+    .then(deleted => {
+      if (deleted) res.status(202).send(`Event ${name} deleted.`)
+      else res.status(404).send(`Event ${name} not found.`)
+    })
+})
+
 
 app.listen(port, (req, res) => console.log(`Express server is listening on ${port}.`))

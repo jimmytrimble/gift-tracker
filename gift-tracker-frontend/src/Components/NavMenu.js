@@ -4,12 +4,8 @@ import React, { useState } from 'react';
 import { Link, useMatch, useResolvedPath } from "react-router-dom"
 import styled from 'styled-components';
 
-
-
-
-
  const Nav = styled.nav`
-    background-color: #BF4F74;
+    background-color: #96a6ef;
     color: white;
     display: flex;
     justify-content: space-between;
@@ -17,12 +13,15 @@ import styled from 'styled-components';
     gap: 2rem;
     padding: 0 1rem;
     border: 2px solid white;
+    height: 75px;
     `
 
  const SiteTitle = styled(Link)`
  color: inherit;
  text-decoration: none;
- font-size: 2rem;
+ font-size: 3rem;
+ align-items: center;
+ align-content: center;
 `
 
 const NavUL = styled.ul`
@@ -34,7 +33,6 @@ const NavUL = styled.ul`
     align-items: center;
 `
 
-
 const NavLink = styled(Link)`
   color: inherit;
   text-decoration: none;
@@ -43,8 +41,6 @@ const NavLink = styled(Link)`
   align-items: center;
   padding: .25rem;
 `;
-
-
 
 const ListItem = styled.li`
   background-color: ${props => props.isActive ? '#555' : 'transparent'};
@@ -56,6 +52,7 @@ const ListItem = styled.li`
 const BudgetInput = styled.input`
   margin-right: 1rem;
 `;
+
 const BudgetButton = styled.button`
   color: white;
   background-color: #444; /* Button color */
@@ -70,13 +67,15 @@ const [budget, setBudget] = useState(0);
 const [budgetInput, setBudgetInput] = useState("");
 
 const handleBudgetChange = (e) => {
-  setBudgetInput(e.target.value);
+  const inputValue = e.target.value;
+  if (/^\d*\.?\d*$/.test(inputValue)) {
+    setBudgetInput(inputValue);
+  }
 };
 
 const updateBudget = () => {
   setBudget(budgetInput);
 };
-
 
   return (
     <Nav>

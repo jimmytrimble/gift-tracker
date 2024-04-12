@@ -5,24 +5,30 @@ import LoginForm from './LoginForm';
 import { useAuth0 } from '@auth0/auth0-react';
 import Calendar from "./Calendar";
 import { UserLog } from '../UserLog';
-//import  background2 from './images/background2';
 
-// export const RecommendItem = styled.div`
-// background: url(${background2?.src});
-// `;
 
 const StyledDiv = styled.div`
     display: flex;
     flex-flow: column;
-    justify-content:center
+    justify-content:center;
     justify-items: center;
     align-content:center;
     align-items: center;
     padding: 10px;
-    gap: 15px;
+    gap: 10px;
     margin: 20px;
 `
-
+const StyledUL = styled.ul`
+display: flex;
+    flex-flow: column;
+    justify-content:center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    margin: 20px;
+`
 const NewGift = styled.div`
     display: flex;
     flex-flow: column;
@@ -60,48 +66,73 @@ const StyledButton = styled.button`
     padding: 5px;
     width: 75px;
 `
-const StyledHeader = styled.h2`
-    display: flex;
-    justify-content:center
-    justify-items: center;
-    align-content:center;
-    align-items: center;
-`
 
-const StyledLI = styled.li`
-display: flex;
-    justify-content:center
+const StyledIcon = styled.button`
+    display: flex;
+    flex-flow: row;
+    justify-content: center
+    justify-items: center;
+    align-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 3px;
+    border: 2px solid white;
+    background-color: #56c1ab;
+`
+const StyledHeader = styled.h1`
+    display: flex;
+    justify-content: center;
     justify-items: center;
     align-content:center;
     align-items: center;
-    list-style-image: 🎁;
+    color:#BF4F74;
+    background-color: white;
+    width:100%;
+`
+const StyledTitle = styled.h1`
+display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    color:#BF4F74;
+`
+const StyledLI = styled.li`
+    display: flex;
+    flex-flow:row;
+    justify-content:center;
+    justify-items: center;
+    align-content:center;
+    align-items: center;
+    list-style-type: none;
+    gap: 10px;
+    background-color: #f7d9fb;
+    color: #2a4be1;
+    padding: 20px;
+    width: 500px;
+    font-weight: bold;
+    border: 2px solid white;
 `
 
 function Homepage() {
-    const { user, isAuthenticated } = useAuth0();
-    const { isUserSaved, setIsUserSaved, loggedInUser, setLoggedInUser } = useContext(UserLog);
+    const { isAuthenticated } = useAuth0();
+    const { loggedInUser } = useContext(UserLog);
     const [addPressed, setAddPressed] = useState(0);
     const [birthdayData, setBirthdayData] = useState([]);
-    const [allData, setAllData] = useState([]);
+    const [isBought, setIsBought] = useState(false);
     const months = ["January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December"];
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"];
 
-
-
-
-    const checkUserData = () => {
-        setIsUserSaved(true);
-    }
 
     const submitEvent = () => {
         let eventName = document.getElementById("birthday_name").value;
@@ -125,7 +156,7 @@ function Homepage() {
 
         const event = {
             name: eventName,
-            //user_id: loggedInUser.id,
+            user_id: loggedInUser.id,
             birthdate: date,
             relationship: relationship
         };
@@ -137,54 +168,97 @@ function Homepage() {
             },
             body: JSON.stringify(event),
         })
-            .then(response => console.log(response))
-        // .then(data => {
-        //     console.log('Success:', data);
-        //     // Optionally reset form, or navigate elsewhere, or update UI
-        // })
-        // .catch((error) => {
-        //     console.log('Error:', error);
-        // });
-        // Optionally, reset addPressed to show the button again, or handle UI feedback in another way
-        //setAddPressed(0);
+            .then(response => {
+                console.log(response)
+                document.location.reload();
+            })
+
     }
 
-    // useEffect to fetch data on component mount
-    useEffect(() => {
+    const loadBirthdays = () => {
         fetch('http://localhost:8081/birthday')
-            .then(response => response.json())
-            .then(data => {
-                setAllData(data.sort((p1, p2) => (Date.parse(p1.birthdate) - Date.parse(p2.birthdate))));
-                setBirthdayData(allData.map(item => {
-                    const splitTime = item.birthdate.split("T");
-                    const splitDate = splitTime[0].split("-")
-                    const monthIndex = parseInt(splitDate[1]) -1;
-                    splitDate[1] = months[monthIndex];
-                    item.birthdate = `${splitDate[1]} ${splitDate[2]}`;
-                    return item
-                }))
+        .then(response => response.json())
+        .then(data => {
+            const currentDate = new Date();
+            let userBirthdates = data.filter(item => item.user_id === loggedInUser.id);
+            let sortedBirthdates = userBirthdates.sort((p1, p2) => {
+            // if(Date.parse(p1.birthdate) < currentDate || Date.parse(p2.birthdate) < currentDate){
+            //     return -1;
+            // }
+                return (Date.parse(p1.birthdate) - Date.parse(p2.birthdate))
+            });
+            setBirthdayData(sortedBirthdates.map(item => {
+                const splitTime = item.birthdate.split("T");
+                const splitDate = splitTime[0].split("-");
+                const monthIndex = parseInt(splitDate[1]) - 1;
+                splitDate[1] = months[monthIndex];
+                item.birthdate = `${splitDate[1]} ${splitDate[2]}`;
+                return item
+            }))
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }
+
+
+    useEffect(() => {
+        if(isAuthenticated){
+            loadBirthdays();
+        }
+    }, [loggedInUser]);
+
+
+    const boughtItem = (eventid, e) => {
+        const clicked = document.getElementById(e);
+        console.log("clicked", e)
+        console.log("id", eventid)
+        setIsBought(!isBought);
+
+        fetch(`http://localhost:8081/update/${eventid}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({bought : !isBought})
+        })
+        clicked.innerHTML = "✅"
+    }
+
+    const removeEvent = (eventid, eventName) => {
+        const clicked = document.getElementById(eventid);
+        fetch(`http://localhost:8081/remove/event/${eventName}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (res.ok) clicked.parentNode.removeChild(clicked);
+                else console.error(`Failed to remove event ${eventid}`);
             })
             .catch(error => {
-                console.error('Error fetching data:', error);
+                console.error('Error removing event:', error);
             });
-    }, [isAuthenticated]); // Empty dependency array means this only runs once on mount
+    }
 
-
-
-
-    if (isAuthenticated) {
-        checkUserData();
+    if (Object.keys(loggedInUser).length !== 0) {
         return (
             <>
-
+                <StyledHeader>YOUR UPCOMING GIFTS!</StyledHeader>
                 <StyledDiv>
-                    <h1>Upcoming Gifts</h1>
-                    <h2>Test header with user: {loggedInUser.username}</h2>
-                    <ul>
+                    <StyledUL>
                         {birthdayData.map((event, index) => (
-                            <StyledLI key={index}>🎁  {event.name} - {event.birthdate}</StyledLI>
+                            <StyledLI id={index}>
+                             {event.birthdate} for {event.name}
+                             {event.bought ?
+                                <StyledIcon id={event.name} onClick ={ () => boughtItem(event.id, event.name)}>✅</StyledIcon>
+                                :<StyledIcon id={event.name} onClick ={ () => boughtItem(event.id, event.name)}>Done?</StyledIcon>}
+
+                            <span onClick={ () => removeEvent(index, event.name)}>🗑️</span>
+                            </StyledLI>
                         ))}
-                    </ul>
+                    </StyledUL>
                     <StyledButton id='add-event-button' onClick={() => setAddPressed(1)}>Add Event</StyledButton>
                 </StyledDiv>
                 {addPressed === 0 ?
@@ -193,14 +267,10 @@ function Homepage() {
                     :
 
                     <NewGift id='add-event'>
-                        <StyledHeader> Fill Out Below To Track A New Gift </StyledHeader>
+                        <StyledTitle> Fill Out Below To Track A New Gift </StyledTitle>
                         <InnerDiv>
                             <label htmlFor="birthday_name">Name of Recipient:</label>
                             <input type="text" id="birthday_name" /> <br />
-                        </InnerDiv>
-                        <InnerDiv>
-                            <label htmlFor="user_id">User ID:</label>
-                            <input type="text" id="id" /> <br />
                         </InnerDiv>
                         <InnerDiv>
                             <label htmlFor="birthdate">Birthdate/Date of Event:</label>
